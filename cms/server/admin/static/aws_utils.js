@@ -645,15 +645,24 @@ CMS.AWSUtils.prototype.format_time = function(timestamp) {
  * return (string): timestamp formatted as above.
  */
 CMS.AWSUtils.prototype.format_countdown = function(countdown) {
-    var hours = countdown / 60 / 60;
-    var hours_rounded = Math.floor(hours);
-    var minutes = countdown / 60 - (60 * hours_rounded);
-    var minutes_rounded = Math.floor(minutes);
-    var seconds = countdown - (60 * 60 * hours_rounded)
-        - (60 * minutes_rounded);
-    var seconds_rounded = Math.floor(seconds);
-    return hours_rounded + ":" + this.two_digits(minutes_rounded) + ":"
-        + this.two_digits(seconds_rounded);
+    var timedelta = countdown;
+    var days = Math.floor(timedelta / 86400);
+    timedelta %= 86400;
+    var hours = Math.floor(timedelta / 3600);
+    timedelta %= 3600;
+    var minutes = Math.floor(timedelta / 60);
+    timedelta %= 60;
+    var seconds = Math.floor(timedelta);
+    
+    if (days > 1) {
+        return days + ":" + this.two_digits(hours) + ":"
+            + this.two_digits(minutes) + ":"
+            + this.two_digits(seconds);
+    }
+
+    return  hours + ":"
+            + this.two_digits(minutes) + ":"
+            + this.two_digits(seconds);
 };
 
 
