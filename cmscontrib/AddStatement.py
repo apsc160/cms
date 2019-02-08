@@ -28,7 +28,7 @@ import os
 import sys
 
 from cms import utf8_decoder, STATEMENT_TYPE_PDF, STATEMENT_TYPE_HTML, \
-    STATEMENT_TYPE_MD
+    STATEMENT_TYPE_MD, get_statement_type
 from cms.db import SessionGen, Statement, Task
 from cms.db.filecacher import FileCacher
 
@@ -82,18 +82,6 @@ def add_statement(task_name, language_code, statement_type, statement_file,
 
     logger.info("Statement added.")
     return True
-
-
-def get_statement_type(statement_file):
-    if statement_file.endswith(".pdf"):
-        return STATEMENT_TYPE_PDF
-    elif statement_file.endswith(".html"):
-        return STATEMENT_TYPE_HTML
-    elif statement_file.endswith(".md"):
-        return STATEMENT_TYPE_MD
-    else:
-        logger.error("Statement file should be a pdf / html / md file.")
-        return None
 
 
 def main():

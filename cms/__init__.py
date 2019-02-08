@@ -70,15 +70,11 @@ FEEDBACK_LEVEL_FULL = "full"
 # can be omitted).
 FEEDBACK_LEVEL_RESTRICTED = "restricted"
 
-# Statement types
-
-STATEMENT_TYPE_PDF = "pdf"
-STATEMENT_TYPE_MD = "md"
-STATEMENT_TYPE_HTML = "html"
-
-
 from .conf import Address, ServiceCoord, ConfigError, async_config, config
 from .util import mkdir, rmtree, utf8_decoder, get_safe_shard, \
     get_service_address, get_service_shards, contest_id_from_args, \
     default_argument_parser
 from .plugin import plugin_list
+
+# statement types
+from .statement_types import STATEMENT_TYPE_PDF, STATEMENT_TYPE_MD, STATEMENT_TYPE_HTML, get_statement_type

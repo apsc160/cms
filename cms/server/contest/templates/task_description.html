@@ -173,6 +173,7 @@ $(document).ready(function() {
             $.get("statements/" + language + "/html")
                 .done(function(data) {
                     $("#statement-view").html(data);
+                    Prism.highlightAll();
                 });
 
         } else if (statements[language].includes("md")) {
@@ -188,6 +189,7 @@ $(document).ready(function() {
                             {left: "\\[", right: "\\]", display: true}
                         ]
                     });
+                    Prism.highlightAll();
                 });
         } else if (statements[language].includes("pdf")) {
             $("#download-as-pdf").hide();

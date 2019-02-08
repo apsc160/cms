@@ -32,6 +32,7 @@ import traceback
 
 import tornado.web
 
+from cms import STATEMENT_TYPE_HTML, STATEMENT_TYPE_MD, STATEMENT_TYPE_PDF, get_statement_type
 from cms.db import Attachment, Dataset, Session, Statement, Submission, \
     Task, StatementAsset
 from cmscommon.datetime import make_datetime
@@ -61,6 +62,7 @@ class AddTaskHandler(SimpleHandler("add_task.html", permission_all=True)):
             self.sql_session.add(task)
 
         except Exception as error:
+            logger.warning("Invalid field: %s" % (traceback.format_exc()))
             self.service.add_notification(
                 make_datetime(), "Invalid field(s)", repr(error))
             self.redirect(fallback_page)
@@ -84,6 +86,7 @@ class AddTaskHandler(SimpleHandler("add_task.html", permission_all=True)):
             task.active_dataset = dataset
 
         except Exception as error:
+            logger.warning("Invalid field: %s" % (traceback.format_exc()))
             self.service.add_notification(
                 make_datetime(), "Invalid field(s)", repr(error))
             self.redirect(fallback_page)
@@ -131,8 +134,10 @@ class TaskHandler(BaseHandler):
             # primary_statement_XX, where XX is the language code.
             primary_statements = {}
             for statement in task.statements:
+                # logger.info(str(statement))
                 self.get_bool(primary_statements,
-                              "primary_statement_%s" % statement)
+                              "primary_statement_%s" % statement[0])
+
             attrs["primary_statements"] = list(sorted([
                 k.replace("primary_statement_", "", 1)
                 for k in primary_statements
@@ -163,6 +168,7 @@ class TaskHandler(BaseHandler):
             task.set_attrs(attrs)
 
         except Exception as error:
+            logger.warning("Invalid field: %s" % (traceback.format_exc()))
             self.service.add_notification(
                 make_datetime(), "Invalid field(s)", repr(error))
             self.redirect(self.url("task", task_id))
@@ -183,6 +189,7 @@ class TaskHandler(BaseHandler):
                 dataset.set_attrs(attrs)
 
             except Exception as error:
+                logger.warning("Invalid field: %s" % (traceback.format_exc()))
                 self.service.add_notification(
                     make_datetime(), "Invalid field(s)", repr(error))
                 self.redirect(self.url("task", task_id))
@@ -237,13 +244,25 @@ class AddStatementHandler(BaseHandler):
             self.redirect(fallback_page)
             return
         statement = self.request.files["statement"][0]
-        if not statement["filename"].endswith(".pdf"):
+
+        # check statement type
+        statement_type = get_statement_type(statement["filename"])        
+        if statement_type is None:
             self.service.add_notification(
                 make_datetime(),
                 "Invalid task statement",
-                "The task statement must be a .pdf file.")
+                "The task statement must be of a supported file type.")
             self.redirect(fallback_page)
             return
+
+        # if not statement["filename"].endswith(".pdf"):
+        #     self.service.add_notification(
+        #         make_datetime(),
+        #         "Invalid task statement",
+        #         "The task statement must be a .pdf file.")
+        #     self.redirect(fallback_page)
+        #     return
+
         task_name = task.name
         self.sql_session.close()
 
@@ -266,7 +285,7 @@ class AddStatementHandler(BaseHandler):
         task = self.safe_get_item(Task, task_id)
         self.contest = task.contest
 
-        statement = Statement(language, digest, task=task)
+        statement = Statement(language, statement_type=statement_type, digest=digest, task=task)
         self.sql_session.add(statement)
 
         if self.try_commit():

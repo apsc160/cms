@@ -9,6 +9,7 @@
         <link rel="shortcut icon" href="{{ url("static", "favicon.ico") }}" />
         <link rel="stylesheet" href="{{ url("static", "css", "bootstrap.css") }}">
         <link rel="stylesheet" href="{{ url("static", "cws_style.css") }}">
+        <link rel="stylesheet" href="{{ url("static", "css", "prism.css") }}">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
 
         <script src="{{ url("static", "jq", "jquery-1.7.1.min.js") }}"></script>
@@ -24,4 +25,6 @@
     <body>
         {% block body %}{% endblock body %}
     </body>
+
+    <script src="{{ url("static", "js", "prism.js") }}"></script>
 </html>
