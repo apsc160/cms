@@ -390,7 +390,7 @@ class Dataset(Base):
         BigInteger,
         CheckConstraint("memory_limit > 0"),
         # Double % is needed because Alchemy formats this string.
-        CheckConstraint("memory_limit %% 1048576 = 0"),
+        CheckConstraint("memory_limit %% (BIGINT)1048576 = 0"),
         nullable=True)
 
     # Name of the TaskType child class suited for the task.
