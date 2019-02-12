@@ -42,6 +42,9 @@ __all__ = [
     "get_service_shards", "contest_id_from_args", "default_argument_parser",
     # plugin
     "plugin_list",
+    # statement types
+    "STATEMENT_TYPE_PDF", "STATEMENT_TYPE_MD", "STATEMENT_TYPE_HTML",
+    "get_statement_type", "get_valid_statement_types",
 ]
 
 
@@ -75,3 +78,7 @@ from .util import mkdir, rmtree, utf8_decoder, get_safe_shard, \
     get_service_address, get_service_shards, contest_id_from_args, \
     default_argument_parser
 from .plugin import plugin_list
+
+# statement types
+from .statement_types import STATEMENT_TYPE_PDF, STATEMENT_TYPE_MD, \
+    STATEMENT_TYPE_HTML, get_statement_type, get_valid_statement_types
