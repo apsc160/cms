@@ -8,6 +8,9 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.5.2/marked.min.js"></script>
+
+    <link rel="stylesheet" href="{{ url("static", "css", "prism.css") }}">
+    <script defer src="{{ url("static", "js", "prism.js") }}"></script>
 {% endblock additional_js %}
 
 {% block core %}
@@ -184,6 +187,7 @@ $(document).ready(function() {
             $.get("statements/" + language + "/html")
                 .done(function(data) {
                     $("#statement-view").html(data);
+                    Prism.highlightAll();
                 });
 
         } else if (statements[language].includes("md")) {
@@ -199,6 +203,7 @@ $(document).ready(function() {
                             {left: "\\[", right: "\\]", display: true}
                         ]
                     });
+                    Prism.highlightAll();
                 });
         } else if (statements[language].includes("pdf")) {
             $("#download-as-pdf").hide();
