@@ -206,15 +206,22 @@ CMS.CWSUtils.prototype.format_timedelta = function(timedelta) {
         timedelta = 0;
     }
 
+    var days = Math.floor(timedelta / 86400);
+    timedelta %= 86400;
     var hours = Math.floor(timedelta / 3600);
     timedelta %= 3600;
     var minutes = Math.floor(timedelta / 60);
     timedelta %= 60;
     var seconds = Math.floor(timedelta);
 
+    if (days > 1) {
+        return days + ":" + this.two_digits(hours) + ":"
+            + this.two_digits(minutes) + ":"
+            + this.two_digits(seconds);
+    }
     return this.two_digits(hours) + ":"
-        + this.two_digits(minutes) + ":"
-        + this.two_digits(seconds);
+            + this.two_digits(minutes) + ":"
+            + this.two_digits(seconds);
 };
 
 

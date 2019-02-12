@@ -16,14 +16,24 @@
  */
 
 function format_time(time, full) {
-    var h = Math.floor(time / 3600);
-    var m = Math.floor((time % 3600) / 60);
-    var s = Math.floor(time % 60);
-    h = full && h < 10 ? "0" + h : "" + h;
-    m = m < 10 ? "0" + m : "" + m;
-    s = s < 10 ? "0" + s : "" + s;
-    return (h + ":" + m + ":" + s);
-};
+    var s = Math.floor(time);
+    var d = Math.floor(s / 86400);
+    s = s % 86400;
+    var h = Math.floor(s / 3600);
+    s = s % 3600;
+    var m = Math.floor(s / 60);
+    s = s % 60;
+
+    var dhstr = "";
+    if (d > 0) {
+        dhstr = "" + d + ":" + (h < 10 ? "0" + h : "" + h); 
+    } else {
+        dhstr = full && h < 10 ? "0" + h : "" + h;
+    }
+    var mstr = m < 10 ? "0" + m : "" + m;
+    var sstr = s < 10 ? "0" + s : "" + s;
+    return (dhstr + ":" + mstr + ":" + sstr);
+}
 
 function _get_time() {
     // Return the seconds since January 1, 1970 00:00:00 UTC
