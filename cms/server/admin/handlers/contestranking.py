@@ -90,7 +90,7 @@ class RankingHandler(BaseHandler):
 
             contest = self.r_params["contest"]
 
-            row = ["Username", "User"]
+            row = ["Username", "User", "Student ID"]
             if show_teams:
                 row.append("Team")
             for task in contest.tasks:
@@ -110,7 +110,7 @@ class RankingHandler(BaseHandler):
                     continue
 
                 row = [p.user.username,
-                       "%s %s" % (p.user.first_name, p.user.last_name)]
+                       "%s %s" % (p.user.first_name, p.user.last_name), p.user.student_id if p.user.student_id else ""]
                 if show_teams:
                     row.append(p.team.name if p.team else "")
                 assert len(contest.tasks) == len(p.scores)

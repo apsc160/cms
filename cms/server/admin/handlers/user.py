@@ -65,6 +65,7 @@ class UserHandler(BaseHandler):
             self.get_string(attrs, "first_name")
             self.get_string(attrs, "last_name")
             self.get_string(attrs, "username", empty=None)
+            self.get_string(attrs, "student_id", empty=None)
 
             self.get_password(attrs, user.password, False)
 
@@ -230,6 +231,7 @@ class AddUserHandler(SimpleHandler("add_user.html", permission_all=True)):
             self.get_string(attrs, "first_name")
             self.get_string(attrs, "last_name")
             self.get_string(attrs, "username", empty=None)
+            self.get_string(attrs, "student_id", empty=None)
 
             self.get_password(attrs, None, False)
 

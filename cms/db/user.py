@@ -73,6 +73,11 @@ class User(Base):
         Unicode,
         nullable=True)
 
+    # Student ID, for connecting to participation grade
+    student_id = Column(
+        Unicode,
+        nullable=True)
+
     # Timezone for the user. All timestamps in CWS will be shown using
     # the timezone associated to the logged-in user or (if it's None
     # or an invalid string) the timezone associated to the contest or
