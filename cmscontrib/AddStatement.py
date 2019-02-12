@@ -3,6 +3,7 @@
 # Contest Management System - http://cms-dev.github.io/
 # Copyright © 2016 Myungwoo Chun <mc.tamaki@gmail.com>
 # Copyright © 2016 Stefano Maggiolo <s.maggiolo@gmail.com>
+# Copyright © 2018 William Di Luigi <williamdiluigi@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -26,7 +27,7 @@ import logging
 import os
 import sys
 
-from cms import utf8_decoder
+from cms import utf8_decoder, get_statement_type
 from cms.db import SessionGen, Statement, Task
 from cms.db.filecacher import FileCacher
 
@@ -34,16 +35,16 @@ from cms.db.filecacher import FileCacher
 logger = logging.getLogger(__name__)
 
 
-def add_statement(task_name, language_code, statement_file, overwrite):
+def add_statement(task_name, language_code, statement_type, statement_file,
+                  overwrite):
     logger.info("Adding the statement(language: %s) of task %s "
                 "in the database.", language_code, task_name)
 
+    if statement_type is None:
+        return False
     if not os.path.exists(statement_file):
         logger.error("Statement file (path: %s) does not exist.",
                      statement_file)
-        return False
-    if not statement_file.endswith(".pdf"):
-        logger.error("Statement file should be a pdf file.")
         return False
 
     with SessionGen() as session:
@@ -56,12 +57,13 @@ def add_statement(task_name, language_code, statement_file, overwrite):
             file_cacher = FileCacher()
             digest = file_cacher.put_file_from_path(
                 statement_file,
-                "Statement for task %s (lang: %s)" %
-                (task_name, language_code))
+                "%s Statement (lang: %s) for task %s" % (
+                    statement_type.upper(), language_code, task_name))
         except Exception:
             logger.error("Task statement storage failed.", exc_info=True)
         arr = session.query(Statement)\
             .filter(Statement.language == language_code)\
+            .filter(Statement.statement_type == statement_type)\
             .filter(Statement.task == task)\
             .all()
         if arr:  # Statement already exists
@@ -70,10 +72,10 @@ def add_statement(task_name, language_code, statement_file, overwrite):
                 session.delete(arr[0])
                 session.commit()
             else:
-                logger.error("A statement with given language already exists. "
-                             "Not overwriting.")
+                logger.error("A statement of the given type and language "
+                             "already exists. Not overwriting.")
                 return False
-        statement = Statement(language_code, digest, task=task)
+        statement = Statement(language_code, statement_type, digest, task=task)
         session.add(statement)
         session.commit()
 
@@ -100,6 +102,7 @@ def main():
     args = parser.parse_args()
 
     success = add_statement(args.task_name, args.language_code,
+                            get_statement_type(args.statement_file),
                             args.statement_file, args.overwrite)
     return 0 if success is True else 1
 

@@ -8,6 +8,7 @@
 # Copyright © 2014 Artem Iglikov <artem.iglikov@gmail.com>
 # Copyright © 2014 Fabian Gundlach <320pointsguy@gmail.com>
 # Copyright © 2016 Myungwoo Chun <mc.tamaki@gmail.com>
+# Copyright © 2018 William Di Luigi <williamdiluigi@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -31,7 +32,10 @@ import traceback
 
 import tornado.web
 
-from cms.db import Attachment, Dataset, Session, Statement, Submission, Task
+from cms import STATEMENT_TYPE_HTML, STATEMENT_TYPE_MD, STATEMENT_TYPE_PDF, \
+    get_statement_type, get_valid_statement_types
+from cms.db import Attachment, Dataset, Session, Statement, Submission, \
+    Task, StatementAsset
 from cmscommon.datetime import make_datetime
 from .base import BaseHandler, SimpleHandler, require_permission
 
@@ -59,6 +63,7 @@ class AddTaskHandler(SimpleHandler("add_task.html", permission_all=True)):
             self.sql_session.add(task)
 
         except Exception as error:
+            logger.warning("Invalid field: %s" % (traceback.format_exc()))
             self.service.add_notification(
                 make_datetime(), "Invalid field(s)", repr(error))
             self.redirect(fallback_page)
@@ -82,6 +87,7 @@ class AddTaskHandler(SimpleHandler("add_task.html", permission_all=True)):
             task.active_dataset = dataset
 
         except Exception as error:
+            logger.warning("Invalid field: %s" % (traceback.format_exc()))
             self.service.add_notification(
                 make_datetime(), "Invalid field(s)", repr(error))
             self.redirect(fallback_page)
@@ -130,7 +136,8 @@ class TaskHandler(BaseHandler):
             primary_statements = {}
             for statement in task.statements:
                 self.get_bool(primary_statements,
-                              "primary_statement_%s" % statement)
+                              "primary_statement_%s" % statement[0])
+
             attrs["primary_statements"] = list(sorted([
                 k.replace("primary_statement_", "", 1)
                 for k in primary_statements
@@ -161,6 +168,7 @@ class TaskHandler(BaseHandler):
             task.set_attrs(attrs)
 
         except Exception as error:
+            logger.warning("Invalid field: %s" % (traceback.format_exc()))
             self.service.add_notification(
                 make_datetime(), "Invalid field(s)", repr(error))
             self.redirect(self.url("task", task_id))
@@ -181,6 +189,7 @@ class TaskHandler(BaseHandler):
                 dataset.set_attrs(attrs)
 
             except Exception as error:
+                logger.warning("Invalid field: %s" % (traceback.format_exc()))
                 self.service.add_notification(
                     make_datetime(), "Invalid field(s)", repr(error))
                 self.redirect(self.url("task", task_id))
@@ -235,13 +244,18 @@ class AddStatementHandler(BaseHandler):
             self.redirect(fallback_page)
             return
         statement = self.request.files["statement"][0]
-        if not statement["filename"].endswith(".pdf"):
+
+        # check statement type
+        statement_type = get_statement_type(statement["filename"])        
+        if statement_type is None:
+            valid_types = "|".join(get_valid_statement_types())
             self.service.add_notification(
                 make_datetime(),
                 "Invalid task statement",
-                "The task statement must be a .pdf file.")
+                "The task statement must be of a supported file type (" + valid_types + ").")
             self.redirect(fallback_page)
             return
+
         task_name = task.name
         self.sql_session.close()
 
@@ -264,7 +278,7 @@ class AddStatementHandler(BaseHandler):
         task = self.safe_get_item(Task, task_id)
         self.contest = task.contest
 
-        statement = Statement(language, digest, task=task)
+        statement = Statement(language, statement_type=statement_type, digest=digest, task=task)
         self.sql_session.add(statement)
 
         if self.try_commit():
@@ -289,6 +303,76 @@ class StatementHandler(BaseHandler):
             raise tornado.web.HTTPError(404)
 
         self.sql_session.delete(statement)
+        self.try_commit()
+
+        # Page to redirect to.
+        self.write("%s" % task.id)
+
+
+class AddStatementAssetHandler(BaseHandler):
+    """Add an asset to a task.
+
+    """
+    @require_permission(BaseHandler.PERMISSION_ALL)
+    def get(self, task_id):
+        task = self.safe_get_item(Task, task_id)
+        self.contest = task.contest
+
+        self.r_params = self.render_params()
+        self.r_params["task"] = task
+        self.render("add_asset.html", **self.r_params)
+
+    @require_permission(BaseHandler.PERMISSION_ALL)
+    def post(self, task_id):
+        fallback_page = self.url("task", task_id, "assets", "add")
+
+        task = self.safe_get_item(Task, task_id)
+
+        asset = self.request.files["asset"][0]
+        task_name = task.name
+        self.sql_session.close()
+
+        try:
+            digest = self.service.file_cacher.put_file_content(
+                asset["body"],
+                "Task statement asset for %s" % task_name)
+        except Exception as error:
+            self.service.add_notification(
+                make_datetime(),
+                "StatementAsset storage failed",
+                repr(error))
+            self.redirect(fallback_page)
+            return
+
+        # TODO verify that there's no other StatementAsset with that filename
+        # otherwise we'd trigger an IntegrityError for constraint violation
+
+        self.sql_session = Session()
+        task = self.safe_get_item(Task, task_id)
+
+        asset = StatementAsset(asset["filename"], digest, task=task)
+        self.sql_session.add(asset)
+
+        if self.try_commit():
+            self.redirect(self.url("task", task_id))
+        else:
+            self.redirect(fallback_page)
+
+
+class StatementAssetHandler(BaseHandler):
+    """Delete an asset.
+
+    """
+    @require_permission(BaseHandler.PERMISSION_ALL)
+    def delete(self, task_id, asset_id):
+        asset = self.safe_get_item(StatementAsset, asset_id)
+        task = self.safe_get_item(Task, task_id)
+
+        # Protect against URLs providing incompatible parameters.
+        if asset.task is not task:
+            raise tornado.web.HTTPError(404)
+
+        self.sql_session.delete(asset)
         self.try_commit()
 
         # Page to redirect to.
