@@ -107,6 +107,13 @@
       </tr>
       <tr>
         <td>
+          <span class="info" title="Student ID of the contestant"></span>
+          Student ID
+        </td>
+        <td><input type="text" name="student_id" value="{{ user.student_id if user.student_id is not none else "" }}"></td>
+      </tr>
+      <tr>
+        <td>
           <span class="info" title="Timezone of the contestant, used to display start, end times and the current server time in local time.
                                     Example: 'Europe/Rome', 'America/New_York', ..."></span>
           Timezone

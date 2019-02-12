@@ -42,6 +42,7 @@
         <th>Username</th>
         <th>First name</th>
         <th>Last name</th>
+	<th>Student ID</th>
       </tr>
     </thead>
     <tbody>
@@ -53,6 +54,7 @@
         <td><a href="{{ url("contest", contest.id, "user", u.id, "edit") }}">{{ u.username }}</a></td>
         <td>{{ u.first_name }}</td>
         <td>{{ u.last_name }}</td>
+	<td>{{ u.student_id if u.student_id else "" }}</td>
       </tr>
       {% endfor %}
     </tbody>

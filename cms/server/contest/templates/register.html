@@ -72,6 +72,13 @@ $(document).ready(function() {
                             <input required minlength="1" maxlength="{{ MAX_INPUT_LENGTH }}" type="text" class="input-xlarge" name="last_name" id="last_name">
                         </div>
                     </div>
+                    <div class="control-group">
+                        <label class="control-label" for="student_id">Student ID</label>
+                        <div class="controls">
+                            <input minlength="0" maxlength="{{ MAX_INPUT_LENGTH }}" type="text" class="input-xlarge" name="student_id" id="student_id">
+                        </div>
+                    </div>
+
 
                     {% if teams|length > 0 %}
                     <div class="control-group">
