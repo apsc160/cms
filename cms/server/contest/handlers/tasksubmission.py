@@ -33,6 +33,7 @@ import logging
 import re
 
 import tornado.web
+from tornado.httputil import HTTPFile
 from sqlalchemy.orm import joinedload
 
 from cms import config, FEEDBACK_LEVEL_FULL
@@ -76,6 +77,23 @@ class SubmitHandler(ContestHandler):
         official = self.r_params["actual_phase"] == 0
 
         query_args = dict()
+
+        # fill in any missing files with text contents
+        for filename in task.submission_format:
+            if filename not in self.request.files:
+                ta_input = self.get_argument('ta_' + filename)
+
+                # potentially append new file
+                if ta_input:
+                    stored_filename = filename
+                    language = self.get_argument("language", None)
+                    if language:
+                        extension = get_language(language).source_extension
+                        stored_filename = filename.replace(".%l", extension)
+
+                    logger.info("Appending file from contents: " + stored_filename)
+                    ta_file = HTTPFile(filename=stored_filename, body=ta_input.encode(), type='text/plain')
+                    self.request.files[filename] = [ta_file]
 
         try:
             submission = accept_submission(
