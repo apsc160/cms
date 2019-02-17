@@ -28,6 +28,9 @@ gevent.monkey.patch_all()  # noqa
 import argparse
 import logging
 import sys
+import getpass
+
+from enum import Enum
 
 from sqlalchemy.exc import IntegrityError
 
@@ -38,11 +41,22 @@ from cmscommon.crypto import generate_random_password, hash_password
 
 logger = logging.getLogger(__name__)
 
+# allow generation or prompting of password for admin
+class EmptyPassword(Enum):
+    GENERATE = None
+    PROMPT = 1
+
 
 def add_admin(username, password=None):
     logger.info("Creating the admin on the database.")
-    if password is None:
+
+    generated = False
+    if password == EmptyPassword.GENERATE or password is None:
         password = generate_random_password()
+        generated = True
+    elif password == EmptyPassword.PROMPT:
+        password = getpass.getpass()
+
     admin = Admin(username=username,
                   authentication=hash_password(password),
                   name=username,
@@ -55,9 +69,13 @@ def add_admin(username, password=None):
         logger.error("An admin with the given username already exists.")
         return False
 
-    logger.info("Admin with complete access added. "
-                "Login with username %s and password %s",
+    if generated:
+        logger.info("Admin with complete access added. "
+                    "Login with username %s and password %s",
                 username, password)
+    else:
+         logger.info("Admin with complete access added. "
+                    "Login with username %s and supplied password", username)
     return True
 
 
@@ -68,7 +86,7 @@ def main():
     parser = argparse.ArgumentParser(description="Add an admin to CMS.")
     parser.add_argument("username", action="store", type=utf8_decoder,
                         nargs=1)
-    parser.add_argument("-p", "--password", action="store", type=utf8_decoder)
+    parser.add_argument("-p", "--password", action="store", nargs="?", const=EmptyPassword.PROMPT, default=EmptyPassword.GENERATE, type=utf8_decoder)
 
     args = parser.parse_args()
 
