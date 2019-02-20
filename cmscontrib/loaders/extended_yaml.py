@@ -771,6 +771,7 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
             # explicit
             tconf = {}
             load(conf, tconf, ["testcases","test_cases"])
+            output_files = []
             for idx, testcase in enumerate(tconf["testcases"]):
                 codename = testcase.get("codename", "%03d" % idx)
                 input_file = testcase.get("input", "input/input%d.txt" % idx)
@@ -791,6 +792,12 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
                 if args["task_type"] == "OutputOnly":
                     task.attachments.set(
                         Attachment("input_%s.txt" % codename, input_digest))
+
+                    output_files.append("output_%s.txt" % codename)
+
+            # If output_only is set, then overwrite submission format
+            if conf.get('output_only', False):
+                task.submission_format = output_files
 
         else:
             # loop through input range

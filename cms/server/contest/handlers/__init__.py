@@ -69,30 +69,31 @@ HANDLERS = [
 
     # Tasks
 
-    (r"/tasks/(.*)/description", TaskDescriptionHandler),
-    (r"/tasks/(.*)/statements/(.*)/(.*)", TaskStatementViewHandler),
-    (r"/tasks/(.*)/attachments/(.*)", TaskAttachmentViewHandler),
-    (r"/tasks/(.*)/assets/(.*)", TaskAssetViewHandler),
+    (r"/tasks/([^/]+)/description", TaskDescriptionHandler),
+    (r"/tasks/([^/]+)/statements/(.*)/(.*)", TaskStatementViewHandler),
+    (r"/tasks/([^/]+)/attachments/(.*)", TaskAttachmentViewHandler),
+    (r"/tasks/([^/]+)/assets/(.*)", TaskAssetViewHandler),
+    (r"/tasks/([^/]+)/details",TaskDescriptionHandler),
 
     # Task submissions
 
-    (r"/tasks/(.*)/submit", SubmitHandler),
-    (r"/tasks/(.*)/submissions", TaskSubmissionsHandler),
-    (r"/tasks/(.*)/submissions/([1-9][0-9]*)", SubmissionStatusHandler),
-    (r"/tasks/(.*)/submissions/([1-9][0-9]*)/details",
+    (r"/tasks/([^/]+)/submit", SubmitHandler),
+    (r"/tasks/([^/]+)/submissions", TaskSubmissionsHandler),
+    (r"/tasks/([^/]+)/submissions/([1-9][0-9]*)", SubmissionStatusHandler),
+    (r"/tasks/([^/]+)/submissions/([1-9][0-9]*)/details",
      SubmissionDetailsHandler),
-    (r"/tasks/(.*)/submissions/([1-9][0-9]*)/files/(.*)",
+    (r"/tasks/([^/]+)/submissions/([1-9][0-9]*)/files/(.*)",
      SubmissionFileHandler),
-    (r"/tasks/(.*)/submissions/([1-9][0-9]*)/token", UseTokenHandler),
+    (r"/tasks/([^/]+)/submissions/([1-9][0-9]*)/token", UseTokenHandler),
 
     # Task usertests
 
     (r"/testing", UserTestInterfaceHandler),
-    (r"/tasks/(.*)/test", UserTestHandler),
-    (r"/tasks/(.*)/tests/([1-9][0-9]*)", UserTestStatusHandler),
-    (r"/tasks/(.*)/tests/([1-9][0-9]*)/details", UserTestDetailsHandler),
-    (r"/tasks/(.*)/tests/([1-9][0-9]*)/(input|output)", UserTestIOHandler),
-    (r"/tasks/(.*)/tests/([1-9][0-9]*)/files/(.*)", UserTestFileHandler),
+    (r"/tasks/([^/]+)/test", UserTestHandler),
+    (r"/tasks/([^/]+)/tests/([1-9][0-9]*)", UserTestStatusHandler),
+    (r"/tasks/([^/]+)/tests/([1-9][0-9]*)/details", UserTestDetailsHandler),
+    (r"/tasks/([^/]+)/tests/([1-9][0-9]*)/(input|output)", UserTestIOHandler),
+    (r"/tasks/([^/]+)/tests/([1-9][0-9]*)/files/(.*)", UserTestFileHandler),
 
     # Communications
 

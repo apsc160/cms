@@ -97,6 +97,9 @@ class Updater:
         data['statements'] = self.parse_dict(
             data['statements'], partial(self.parse_generic, cls='Statement'),
             'language', task=id_)
+        data['statement_assets'] = self.parse_dict(
+            data['statement_assets'], partial(self.parse_generic, cls='StatementAsset'),
+            'filename', task=id_)
         data['attachments'] = self.parse_dict(
             data['attachments'], partial(self.parse_generic, cls='Attachment'),
             'filename', task=id_)

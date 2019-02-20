@@ -279,7 +279,7 @@ $(document).ready(function () {
                     <div class="controls">
                         <input type="file" class="input-xlarge"
                                id="input{{ loop.index0 }}" name="{{ filename }}"
-                               onchange="CMS.CWSUtils.filter_languages($(this).parents('form').find('select[name=language] option'),
+                               onchange="filter_languages($(this).parents('form').find('select[name=language] option'),
                                                                        $(this).parents('form').find('input[type=file]'))"/>
                     </div>
                 </div>
@@ -292,14 +292,18 @@ $(document).ready(function () {
                 </div>
             </fieldset>
         </form>
-    </div>
 {% if task.submission_format|length > 1 and not task.submission_format|any("endswith", ".%l") %}
-    <div class="span4">
+        <br/>
         <form class="form-horizontal" enctype="multipart/form-data" action="{{ contest_url("tasks", task.name, "submit") }}" method="POST">
             {{ xsrf_form_html|safe }}
             <fieldset>
                 <div class="control-group">
-                    <label class="control-label" for="input_zip">{% trans %}submission.zip{% endtrans %}</label>
+                    <label class="control-label" for="input_zip_filename"><strong>{% trans %}Compressed:{% endtrans %}</strong></label>
+                    <div class="controls">
+                        <input type="text" readonly style="width: 100%" id="input_zip_filename" value='submission.zip'></input>
+                    </div>
+                </div>
+                <div class="control-group">
                     <div class="controls">
                         <input type="file" class="input-xlarge" id="input_zip" name="submission"/>
                     </div>
@@ -577,6 +581,17 @@ $(document).ready(function () {
         txt = editor{{ loop.index0 }}.getSession().getValue();
         localStorage.setItem(real_filename, txt);
 {% endfor %}
+    }
+
+    function filter_languages(options, inputs) {
+        CMS.CWSUtils.filter_languages(options, inputs)
+        // detect change in language and update if necessary
+        var new_language = languageselect.find(":selected").text();
+        if (new_language !== language) {
+            language = new_language;
+            updateLanguage(language);
+        }
+
     }
 
 </script>

@@ -286,6 +286,7 @@ def update_task(old_task, new_task, parent=None, get_statements=True):
         Task.user_tests: False,
         # Relationships to update.
         Task.statements: get_statements,
+        Task.statement_assets: get_statements,
         Task.datasets: update_datasets_fn,
         Task.attachments: True,
         # Scalar columns exceptions.

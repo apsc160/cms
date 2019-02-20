@@ -32,6 +32,7 @@ BEGIN;
         SELECT digest FROM managers UNION
         SELECT digest FROM printjobs UNION
         SELECT digest FROM statements UNION
+        SELECT digest FROM statment_assets UNION
         SELECT input AS digest FROM testcases UNION
         SELECT output AS digest FROM testcases UNION
         SELECT input AS digest FROM user_tests UNION
