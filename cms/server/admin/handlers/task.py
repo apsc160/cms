@@ -127,6 +127,7 @@ class TaskHandler(BaseHandler):
             attrs = task.get_attrs()
 
             self.get_string(attrs, "name", empty=None)
+            self.get_string(attrs, "category")
             self.get_string(attrs, "title")
 
             assert attrs.get("name") is not None, "No task name specified."

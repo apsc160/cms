@@ -182,7 +182,14 @@ $(document).ready(function () {
                             <li class="nav-header">
                                 Tasks
                             </li>
+        {% set iter = namespace(last_category="") %}   
         {% for t_iter in contest.tasks %}
+            {% if t_iter.category != iter.last_category %}
+                {% set iter.last_category = t_iter.category %}
+                            <li class="nav-header">
+                                {{ t_iter.category }}
+                            </li>
+            {% endif %}
                             <li class="nav-item{# nav-header #}{% if page == "task_full" and task == t_iter %} active{% endif %}">
                                 <a href="{{ contest_url("tasks", t_iter.name, "full") }}">{{ t_iter.name }}</a>
                             </li>

@@ -56,6 +56,13 @@ $("select[name=task_type_{{ dataset.id }}]").change(function() {
       </tr>
       <tr>
         <td>
+          <span class="info" title="The category for the task."></span>
+          Category
+        </td>
+        <td><input type="text" name="category" value="{{ task.category }}"/></td>
+      </tr>
+      <tr>
+        <td>
           <span class="info" title="The title of the task as seen by the contestants."></span>
           Title
         </td>

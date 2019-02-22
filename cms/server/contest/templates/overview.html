@@ -191,6 +191,7 @@
     <thead>
         <tr>
             <th>{% trans %}Task{% endtrans %}</th>
+            <th>{% trans %}Category{% endtrans %}</th>
             <th>{% trans %}Name{% endtrans %}</th>
             <th>{% trans %}Time limit{% endtrans %}</th>
             <th>{% trans %}Memory limit{% endtrans %}</th>
@@ -218,6 +219,7 @@
     {% set score_type = get_score_type(dataset=t_iter.active_dataset) %}
         <tr>
             <th>{{ t_iter.name }}</th>
+            <td>{{ t_iter.category }}</td>
             <td>{{ t_iter.title }}</td>
             <td>
     {% if t_iter.active_dataset.time_limit is not none %}

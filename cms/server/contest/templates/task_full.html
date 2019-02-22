@@ -60,7 +60,7 @@
 <div class="span9 task_full">
 
     <div class="page-header">
-        <h1>{% trans name=task.title, short_name=task.name %}{{ name }} ({{ short_name }}){% endtrans %}</h1>
+        <h1>{% trans name=task.title, short_name=task.name %}{{ name }} <small>({{ short_name }})</small>{% endtrans %}</h1>
     </div>
 
     {% include "task_submissions-score.html" %}

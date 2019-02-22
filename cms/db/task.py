@@ -97,6 +97,12 @@ class Task(Base):
         Unicode,
         nullable=False)
 
+    # Task category
+    category = Column(
+        Unicode, 
+        nullable=False,
+        default = "")
+
     # The names of the files that the contestant needs to submit (with
     # language-specific extensions replaced by "%l").
     submission_format = Column(
