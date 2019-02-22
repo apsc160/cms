@@ -312,7 +312,7 @@ class YamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
                     language,
                     args["name"]))
 
-            args["statements"][(language, statement_type)] = \
+            args["statements"][Statement.encode_key(language, statement_type)] = \
                 Statement(language, statement_type, digest)
 
     def get_task(self, get_statement=True):

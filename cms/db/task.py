@@ -327,7 +327,12 @@ class Statement(Base):
 
     @property
     def statement_key(self):
-        return (self.language, self.statement_type)
+        return Statement.encode_key(self.language, self.statement_type)
+    
+    @staticmethod
+    def encode_key(language, statement_type):
+        return "{language:'" + language + "', statement_type:'" + statement_type + "'}"
+        
 
 
 class StatementAsset(Base):

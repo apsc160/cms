@@ -102,10 +102,11 @@ class TaskStatementViewHandler(FileHandler):
         if task is None:
             raise tornado.web.HTTPError(404)
 
-        if (lang_code, statement_type) not in task.statements:
+        key = Statement.encode_key(lang_code, statement_type)
+        if key not in task.statements:
             raise tornado.web.HTTPError(404)
 
-        statement = task.statements[(lang_code, statement_type)].digest
+        statement = task.statements[key].digest
         self.sql_session.close()
 
         if statement_type == STATEMENT_TYPE_PDF:
