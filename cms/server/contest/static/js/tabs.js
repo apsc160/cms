@@ -1,32 +1,57 @@
-var queryString = {};
+/**
+ * Looks for tab elements with class "tabcontent" and corresponding links with class "tablink"
+ * 
+ * Each tabcontent must have a "tab" attribute with unique identifier
+ * Each tablink must have a "tab" attribute with equal value
+ * 
+ * Uses query strings to detect the tab, specfied using "tab=<name>"
+ */
 
-window.location.href.replace(
+// hide tabs
+$(".tabcontent").css("display", "none");
+
+// register on-click events
+$(".tablinks").click(function() {
+	var tab = $(this).attr("tab");
+	openTab(tab, true);
+});
+
+var queryParams = {};
+
+// get query parameters
+window.location.search.replace(
     new RegExp("([^?=&]+)(=([^&]*))?", "g"),
-    function($0, $1, $2, $3) { queryString[$1] = $3; }
+    function($0, $1, $2, $3) { queryParams[decodeURIComponent($1)] = decodeURIComponent($3); }
 );
 
-if (queryString["tab"]) {
-	openTab(queryString["tab"], false);
+// check for tab and open
+if (queryParams["tab"]) {
+	openTab(queryParams["tab"], false);
 } else {
 	// open first tab
 	var tabcontent = $(".tabcontent");
 	if (tabcontent.length > 0) {
-		openTab(tabcontent[0].id, false);
+		openTab(tabcontent.first().attr("tab"), false);
 	}
 }
 
-
+// load tab state
 $(document).ready(function($) {
 	if (window.history && window.history.pushState) {
 		$(window).on('popstate', function(event) {
-			state = event.originalEvent.state;
-			if (state && state["tab"]) {
-				openTab(state["tab"], false);
+			var state = event.originalEvent.state;
+			if (state) {
+				var tab = state["tab"];
+				if (tab) {
+					queryParams["tab"] = tab;
+					openTab(tab, false);
+				}
 			}
 	  	});
 	}
 });
 
+// open a specified tab, pushing or replacing state if desired
 function openTab(tabName, push) {
 	// Declare all variables
 	var i, tabcontent, tablinks;
@@ -40,7 +65,7 @@ function openTab(tabName, push) {
 	tablinks.removeClass("active");
   
 	// Show the current tab, and add an "active" class to the button that opened the tab
-	var tab = $('#' + tabName)
+	var tab = $(".tabcontent[tab='" + tabName + "']");
 	tab.css("display", "block");
 
 	// add active back to selected tab
@@ -50,11 +75,14 @@ function openTab(tabName, push) {
 	// Change window location to add URL params
 	if (window.history && history.pushState) {
 		// NOTE: doesn't take into account existing params
-		queryString["tab"] = tabName;
+		queryParams["tab"] = tabName;
+		var queryString = "?" + $.param(queryParams);
 		if (push) {
-			history.pushState(queryString, "", "?" + "tab" + "=" + tabName);
+			history.pushState(queryParams, "", queryString);
 		} else {
-			history.replaceState(queryString, "", "?" + "tab" + "=" + tabName);
+			history.replaceState(queryParams, "", queryString);
 		}
 	}
 }
+
+

@@ -68,22 +68,22 @@
 
     <!-- tab links -->
     <div class="tab">
-        <button id="problem_link" class="tablinks" onclick="openTab('problem', true)">Problem</button>
-        <button id="submissions_link" class="tablinks" onclick="openTab('submissions', true)">Submissions</button>
-        <button id="details_link" class="tablinks" onclick="openTab('details', true)">Details</button>
+        <button id="problem_link" tab="problem" class="tablinks" >Problem</button>
+        <button id="submissions_link" tab="submissions" class="tablinks" >Submissions</button>
+        <button id="details_link" tab="details" class="tablinks" >Details</button>
     </div>
 
-    <div id="problem" class="task_description tabcontent">       
+    <div tab="problem" class="task_description tabcontent">       
         {% include "task_description-statement.html" %}
         {% include "task_description-attachments.html" %}
         {% include "task_submissions-submit.html" %}
     </div>
 
-    <div id="submissions" class="task_submissions tabcontent">
+    <div tab="submissions" class="task_submissions tabcontent">
         {% include "task_submissions-previous.html" %}
     </div>
 
-    <div id="details" class="task_details tabcontent">
+    <div tab="details" class="task_details tabcontent">
         {% include "task_description-evaluation.html" %}
     </div>
 </div>
