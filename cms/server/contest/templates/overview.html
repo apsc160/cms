@@ -4,7 +4,6 @@
 
 {% block core %}
 
-
 <div class="span9">
 
 <div class="page-header">
@@ -71,8 +70,6 @@
         </p>
 
 {% endif %}
-
-
 
 {% if tokens_contest != TOKEN_MODE_DISABLED and tokens_tasks != TOKEN_MODE_DISABLED %}
     {% if tokens_contest == TOKEN_MODE_INFINITE and tokens_tasks == TOKEN_MODE_INFINITE %}
@@ -182,7 +179,7 @@
 {% if actual_phase == 0 or actual_phase == 3%}
 <h2>{% trans %}Task overview{% endtrans %}</h2>
 
-<table class="table table-bordered table-striped">
+<table class="task_overview table table-bordered table-striped">
     <!-- <colgroup>
         <col class="task"/>
         <col class="time_limit"/>
@@ -202,11 +199,23 @@
 {% if tokens_contest != TOKEN_MODE_DISABLED and tokens_tasks != TOKEN_MODE_DISABLED %}
             <th>{% trans %}Tokens{% endtrans %}</th>
 {% endif %}
+{% if has_public_scores %}
+    {% if has_tokened_scores %}
+            <th>{% trans %}Public Score{% endtrans %}</th>
+            <th>{% trans %}Total Score{% endtrans %}</th>
+    {% else %}
+            <th>{% trans %}Score{% endtrans %}</th>
+    {% endif %}
+{% elif has_tokened_scores %}
+    <th>{% trans %}Score{% endtrans %}</th>
+{% endif %}
         </tr>
     </thead>
     <tbody>
 {% set extensions = "[%s]"|format(contest.languages|map("to_language")|map(attribute="source_extension")|unique|join("|")) %}
 {% for t_iter in contest.tasks %}
+    {% set user_score = participation_scores[t_iter.name] %}
+    {% set score_type = get_score_type(dataset=t_iter.active_dataset) %}
         <tr>
             <th>{{ t_iter.name }}</th>
             <td>{{ t_iter.title }}</td>
@@ -234,6 +243,28 @@
             {% trans %}No{% endtrans %}
         {% endif %}
             </td>
+    {% endif %}
+    {% if has_public_scores %}
+        {% if score_type is defined and user_score is defined%}
+            <td class="public_score {{ get_score_class(user_score.public_score, score_type.max_public_score, t_iter.score_precision) if user_score.num_submissions > 0 else "" }}">
+                {{ score_type.format_score(user_score.public_score, score_type.max_public_score, none, t_iter.score_precision, translation=translation) }}
+            </td>
+        {% else %}
+            <td class="public_score undefined">
+                {% trans %}N/A{% endtrans %}
+            </td>
+        {% endif %}
+    {% endif %}
+    {% if has_tokened_scores %}
+        {% if score_type is defined and user_score is defined %}
+            <td class="total_score {{ get_score_class(user_score.tokened_score, score_type.max_score, t_iter.score_precision) if user_score.num_submissions > 0 else "" }}">
+                {{ score_type.format_score(user_score.tokened_score, score_type.max_score, none, t_iter.score_precision, translation=translation) }}
+            </td>
+        {% else %}
+            <td class="total_score undefined">
+                {% trans %}N/A{% endtrans %}
+            </td>
+        {% endif %}
     {% endif %}
         </tr>
 {% endfor %}

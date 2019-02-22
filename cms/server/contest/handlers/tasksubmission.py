@@ -115,10 +115,12 @@ class SubmitHandler(ContestHandler):
             # useful for automatic testing to obtain the submission id).
             query_args["submission_id"] = \
                 encrypt_number(submission.id, config.secret_key)
+            query_args["tab"] = "submissions"
 
-        self.redirect(self.contest_url("tasks", task.name, "submissions",
-                                       **query_args))
-
+        # self.redirect(self.contest_url("tasks", task.name, "submissions",
+        #                               **query_args))
+        self.redirect(self.contest_url("tasks", task.name, "full",
+            **query_args))
 
 class TaskSubmissionsHandler(ContestHandler):
     """Shows the data of a task in the contest.
@@ -128,6 +130,13 @@ class TaskSubmissionsHandler(ContestHandler):
     @actual_phase_required(0, 3)
     @multi_contest
     def get(self, task_name):
+        rp = dict(self.r_params)
+        self.append_task_render_params(task_name, rp)
+        self.render("task_submissions.html", **rp)
+
+    def append_task_render_params(self, task_name, rparams):
+        """Append task-specific render parameters
+        """
         participation = self.current_user
 
         task = self.get_task(task_name)
@@ -175,16 +184,18 @@ class TaskSubmissionsHandler(ContestHandler):
         tokens_info = tokens_available(participation, task, self.timestamp)
 
         download_allowed = self.contest.submissions_download_allowed
-        self.render("task_submissions.html",
-                    task=task, submissions=submissions,
-                    public_score=public_score,
-                    tokened_score=tokened_score,
-                    is_score_partial=is_score_partial,
-                    tokens_task=task.token_mode,
-                    tokens_info=tokens_info,
-                    submissions_left=submissions_left,
-                    submissions_download_allowed=download_allowed,
-                    **self.r_params)
+
+        rparams['task'] = task
+        rparams['submissions'] = submissions
+        rparams['public_score'] = public_score
+        rparams['tokened_score'] = tokened_score
+        rparams['is_score_partial'] = is_score_partial
+        rparams['tokens_task'] = task.token_mode
+        rparams['tokens_info'] = tokens_info
+        rparams['submissions_left'] = submissions_left
+        rparams['submissions_download_allowed'] = download_allowed
+
+        return rparams
 
 
 class SubmissionStatusHandler(ContestHandler):
@@ -415,4 +426,8 @@ class UseTokenHandler(ContestHandler):
                                 N_("Your request has been received "
                                    "and applied to the submission."))
 
-        self.redirect(self.contest_url("tasks", task.name, "submissions"))
+        # self.redirect(self.contest_url("tasks", task.name, "submissions"))
+        query_args = {
+            "tab": "submissions"
+        }
+        self.redirect(self.contest_url("tasks", task.name, "submissions", **query_args))

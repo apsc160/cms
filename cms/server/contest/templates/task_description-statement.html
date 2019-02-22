@@ -1,0 +1,36 @@
+{# Renders the task statement
+ # Requires: task, main_languages, format_locale
+ # Dependencies: task_description-statement-head.html, task_description-statement-foot.html
+ #}
+
+<h2>{% trans %}Statement{% endtrans %}</h2>
+
+{% if task.statements|length == 0 %}
+<div class="row statement no_statements">
+    <div class="span9">
+        {% trans %}no statement available{% endtrans %}
+    </div>
+</div>
+{% else %}
+<div>
+    <select id="statement-language-selection">
+        {% for language in main_languages %}
+            {% set language_name = language|format_locale %}
+            <option value="{{ language }}">{{ language_name }}</option>
+        {% endfor %}
+
+        {% if main_languages|length > 0 and other_languages|length > 0 %}
+            <option disabled>&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;</option>
+        {% endif %}
+
+        {% for language in other_languages %}
+            {% set language_name = language|format_locale %}
+            <option value="{{ language }}">{{ language_name }}</option>
+        {% endfor %}
+    </select>
+
+    <a style="float: right;" id="download-as-pdf" href="#" class="btn btn-success">Download as PDF</a>
+</div>
+
+<div id="statement-view"></div>
+{% endif %}

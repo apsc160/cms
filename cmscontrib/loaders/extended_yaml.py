@@ -774,13 +774,27 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
             output_files = []
             for idx, testcase in enumerate(tconf["testcases"]):
                 codename = testcase.get("codename", "%03d" % idx)
-                input_file = testcase.get("input", "input/input%d.txt" % idx)
+                input_file = testcase.get("input")
                 output_file = testcase.get("output", "output/output%d.txt" % idx)
                 public = testcase.get("public", False)
 
-                input_digest = self.file_cacher.put_file_from_path(
-                        os.path.join(self.path, input_file),
-                        "Input %d for test %s" % (idx, task.name))
+                # try to auto-detect single input
+                if input_file is None:
+                    tmp_input_file = "input/input%d.txt" % idx
+                    if os.path.isfile(tmp_input_file):
+                        input_file = tmp_input_file
+
+                input_is_empty = False
+                if input_file:
+                    input_digest = self.file_cacher.put_file_from_path(
+                            os.path.join(self.path, input_file),
+                            "Input %d for test %s" % (idx, task.name))
+                else:
+                    input_is_empty = True
+                    input_digest = self.file_cacher.put_file_content(
+                            b'',
+                            "Empty input %d for test %s" % (idx, task.name))
+
                 output_digest = self.file_cacher.put_file_from_path(
                     os.path.join(self.path, output_file),
                     "Output %d for task %s" % (idx, task.name))
@@ -790,8 +804,10 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
 
                 # add inputs as attachments
                 if args["task_type"] == "OutputOnly":
-                    task.attachments.set(
-                        Attachment("input_%s.txt" % codename, input_digest))
+                    # only attach file if there actually is one
+                    if not input_is_empty:
+                        task.attachments.set(
+                            Attachment("input_%s.txt" % codename, input_digest))
 
                     output_files.append("output_%s.txt" % codename)
 

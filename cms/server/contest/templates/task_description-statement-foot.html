@@ -1,0 +1,72 @@
+{# Javascript at end of body 
+ # Requires: statements
+ #}
+
+<script>
+    $(document).ready(function() {
+        var statements = {{ statements|safe }};
+    
+        function updateStatement(language) {
+            if (statements[language].includes("pdf")) {
+                $("#download-as-pdf").show().attr("href", "statements/" + language + "/pdf");
+            } else {
+                $("#download-as-pdf").hide();
+            }
+    
+            if (statements[language].includes("html")) {
+                $("#statement-view").text("Loading...");
+                $.get("statements/" + language + "/html")
+                    .done(function(data) {
+                        $("#statement-view").html(data);
+                        Prism.highlightAll();
+                    });
+    
+            } else if (statements[language].includes("md")) {
+                $("#statement-view").text("Loading...");
+                $.get("statements/" + language + "/md")
+                    .done(function(data) {
+                        $("#statement-view").html(marked(data));
+                        renderMathInElement(document.getElementById("statement-view"), {
+                            delimiters: [
+                                {left: "$$", right: "$$", display: true},
+                                {left: "$", right: "$", display: false},
+                                {left: "\\(", right: "\\)", display: false},
+                                {left: "\\[", right: "\\]", display: true}
+                            ]
+                        });
+                        Prism.highlightAll();
+                    });
+            } else if (statements[language].includes("pdf")) {
+                $("#download-as-pdf").hide();
+    
+                $("#statement-view").empty().append(
+                    '<div style="text-align: center"><a href="statements/' + language + '/pdf" class="btn btn-success btn-large">Download PDF task statement</a></div>'
+                );
+            } else {
+                $("#statement-view").text("error");
+            }
+        }
+    
+        // Get statement language setting
+        var userSetting = localStorage.getItem("statement-language");
+        if (userSetting != null) {
+            // If the setting makes sense
+            if (statements.hasOwnProperty(userSetting)) {
+                $("#statement-language-selection").val(userSetting);
+            } else {
+                // Otherwise, reset the setting
+                localStorage.removeItem("statement-language");
+            }
+        }
+    
+        // Load statement for the first time
+        updateStatement($("#statement-language-selection").val());
+    
+        $("#statement-language-selection").change(function() {
+            // Update local storage
+            localStorage.setItem("statement-language", $("#statement-language-selection").val());
+            // Reload statement
+            updateStatement($("#statement-language-selection").val());
+        });
+    });
+</script>

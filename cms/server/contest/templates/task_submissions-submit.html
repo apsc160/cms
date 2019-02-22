@@ -1,0 +1,101 @@
+{# Renders submission form
+ # Requires: task, get_task_type, submissions_left, 
+ # Dependencies: task_submissions-submit-head.html, task_submissions-submit-foot.html
+ #}
+
+<h2 style="margin-bottom: 10px">{% trans %}Submit a solution{% endtrans %}</h2>
+
+{% set task_type = get_task_type(dataset=task.active_dataset) %}
+{% if task_type.ALLOW_PARTIAL_SUBMISSION %}
+  <p><strong>{% trans %}You may submit any subset of outputs in a single submission.{% endtrans %}</strong></p>
+{% endif %}
+
+{% if submissions_left is not none %}
+    <div class="span5">
+        <p>
+        {% trans submissions_left=submissions_left %}You can submit {{ submissions_left }} more solution(s).{% endtrans %}
+        </p>
+    </div>
+{% endif %}
+
+<div id="submit_solution" class="row">
+    <div class="row-fluid">
+        <form id="submit_solution_form" class="form-horizontal" enctype="multipart/form-data" action="{{ contest_url("tasks", task.name, "submit") }}" method="POST">
+            {{ xsrf_form_html|safe }}
+            <fieldset>
+{% if task.submission_format|any("endswith", ".%l") %}
+                <label class="control-label" id="language_label" for="language"><strong>{% trans %}Language{% endtrans %}:</strong></label>
+                <div class="control-group">
+                    <div class="controls">
+                        <select name="language">
+{% for lang in contest.languages %}
+                            <option value="{{ lang }}">{{ lang }}</option>
+{% endfor %}
+                        </select>
+                    </div>
+                </div>
+{% endif %}
+{% for filename in task.submission_format %}
+                <br/>
+                <label class="control-label" id="editor{{ loop.index0 }}_label" for="editor{{ loop.index0 }}_filename"><strong>{% trans %}Filename{% endtrans %}:</strong></label>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" readonly class="input-block-level" id="editor{{ loop.index0 }}_filename" value='{{ filename|replace(".%l", ": ") }}'></input>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <div id="editor{{ loop.index0 }}" class="input-block-level ace_editor" ></div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="hidden" id="ta_input{{ loop.index0 }}" name="ta_{{ filename }}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <!--<label class="control-label" id="input{{ loop.index0 }}_label"for="input{{ loop.index0 }}"><strong>Upload file:</strong></label>
+                        -->
+                    <div class="controls">
+                        <input type="file" class="input-xlarge"
+                               id="input{{ loop.index0 }}" name="{{ filename }}"
+                               onchange="filter_languages($(this).parents('form').find('select[name=language] option'),
+                                                                       $(this).parents('form').find('input[type=file]'))"/>
+                    </div>
+                </div>
+{% endfor %}
+                <div class="control-group">
+                    <div class="controls">
+                        <button type="submit" class="btn btn-success">{% trans %}Submit{% endtrans %}</button>
+                        <button type="reset" class="btn">{% trans %}Reset{% endtrans %}</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+{% if task.submission_format|length > 1 and not task.submission_format|any("endswith", ".%l") %}
+        <br/>
+        <form class="form-horizontal" enctype="multipart/form-data" action="{{ contest_url("tasks", task.name, "submit") }}" method="POST">
+            {{ xsrf_form_html|safe }}
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="input_zip_filename"><strong>{% trans %}Compressed:{% endtrans %}</strong></label>
+                    <div class="controls">
+                        <input type="text" readonly class="input-block-level" id="input_zip_filename" value='submission.zip'></input>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="file" class="input-xlarge" id="input_zip" name="submission"/>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <button type="submit" class="btn btn-success">{% trans %}Submit{% endtrans %}</button>
+                        <button type="reset" class="btn">{% trans %}Reset{% endtrans %}</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+{% endif %}
+    </div>
+</div>

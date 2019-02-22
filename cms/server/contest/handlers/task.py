@@ -38,6 +38,7 @@ from cmscommon.mimetypes import get_type_for_file_name
 from .contest import ContestHandler, FileHandler
 from ..phase_management import actual_phase_required
 
+from .tasksubmission import TaskSubmissionsHandler
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,14 @@ class TaskDescriptionHandler(ContestHandler):
     @actual_phase_required(0, 3)
     @multi_contest
     def get(self, task_name):
+        rp = dict(self.r_params)
+        self.append_task_render_params(task_name, rp)
+        self.render("task_description.html", **rp)
+
+    def append_task_render_params(self, task_name, rparams):
+        """Append task-specific render parameters
+        """
+
         task = self.get_task(task_name)
         if task is None:
             raise tornado.web.HTTPError(404)
@@ -73,10 +82,12 @@ class TaskDescriptionHandler(ContestHandler):
         main_languages = list(sorted(main_languages))
         other_languages = list(sorted(other_languages))
 
-        self.render("task_description.html", task=task,
-                    main_languages=main_languages,
-                    other_languages=other_languages,
-                    statements=statements, **self.r_params)
+        rparams['task'] = task
+        rparams['main_languages'] = main_languages
+        rparams['other_languages'] = other_languages
+        rparams['statements'] = statements
+
+        return rparams
 
 
 class TaskStatementViewHandler(FileHandler):
@@ -160,3 +171,17 @@ class TaskAssetViewHandler(FileHandler):
             mimetype = 'application/octet-stream'
 
         self.fetch(asset, mimetype, filename)
+
+class TaskFullHandler(ContestHandler):
+    """Handle the "full" view page, containing statement view and submission
+
+    """
+    @tornado.web.authenticated
+    @actual_phase_required(0, 3)
+    @multi_contest
+    def get(self, task_name):
+        rparams = dict(self.r_params)
+        TaskDescriptionHandler.append_task_render_params(self, task_name, rparams)
+        TaskSubmissionsHandler.append_task_render_params(self, task_name, rparams)
+
+        self.render("task_full.html", **rparams)

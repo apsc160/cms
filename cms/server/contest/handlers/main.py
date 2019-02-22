@@ -34,10 +34,12 @@ import re
 
 import tornado.web
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import joinedload
 
 from cms import config
-from cms.db import PrintJob, User, Participation, Team
+from cms.db import PrintJob, User, Participation, Team, Submission
 from cms.grading.steps import COMPILATION_MESSAGES, EVALUATION_MESSAGES
+from cms.grading.scoring import task_score
 from cms.server import multi_contest
 from cms.server.contest.authentication import validate_login
 from cms.server.contest.communication import get_communications
@@ -63,6 +65,47 @@ class MainHandler(ContestHandler):
     """
     @multi_contest
     def get(self):
+
+        # contest scoring
+        participation = self.current_user
+        has_public_scores = False
+        has_tokened_scores = False
+        participation_scores = dict()
+        for task in self.contest.tasks:
+            score_type = task.active_dataset.score_type_object
+            if score_type:
+                if score_type.max_public_score > 0:
+                    has_public_scores = True
+                if score_type.max_public_score < score_type.max_score:
+                    has_tokened_scores = True
+
+                # current user's scores
+                if participation:
+                    # check for submission
+                    submissions = self.sql_session.query(Submission)\
+                        .filter(Submission.participation == participation)\
+                        .filter(Submission.task == task)\
+                        .options(joinedload(Submission.token))\
+                        .options(joinedload(Submission.results))\
+                        .all()
+                    num_submissions = len(submissions)
+
+                    public_score, is_public_score_partial = task_score(
+                        participation, task, public=True, rounded=True)
+                    tokened_score, is_tokened_score_partial = task_score(
+                        participation, task, only_tokened=True, rounded=True)
+                    is_score_partial = is_public_score_partial or is_tokened_score_partial
+                        
+                    participation_scores[task.name] = {
+                        'public_score': public_score,
+                        'tokened_score': tokened_score,
+                        'is_score_partial': is_score_partial,
+                        'num_submissions': num_submissions
+                    }
+
+        self.r_params['has_public_scores'] = has_public_scores
+        self.r_params['has_tokened_scores'] = has_tokened_scores
+        self.r_params['participation_scores'] = participation_scores
         self.render("overview.html", **self.r_params)
 
 

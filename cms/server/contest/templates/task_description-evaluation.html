@@ -1,0 +1,80 @@
+{# Lists evaluation parameters
+ # Requires: task, get_task_type, tokens_contest, tokens_tasks, extract_token_params, format_duration, format_size, format_token_rules, contest_url
+ #}
+
+<h2>{% trans %}Evaluation details{% endtrans %}</h2>
+
+<table class="table table-bordered table-nohover" style="table-layout: fixed">
+    <colgroup>
+        <col style="width: 20%"/>
+        <col style="width: 20%"/>
+        <col style="width: 60%"/>
+    </colgroup>
+    <tbody>
+        <tr>
+            <th>{% trans %}Type{% endtrans %}</th>
+            <td colspan="2">{% set task_type = get_task_type(dataset=task.active_dataset) %}{{ task_type.name }}</td>
+        </tr>
+{% if task.active_dataset.time_limit is not none %}
+        <tr>
+            <th>{% trans %}Time limit{% endtrans %}</th>
+            <td colspan="2">{{ task.active_dataset.time_limit|format_duration(length="long") }}</td>
+        </tr>
+{% endif %}
+{% if task.active_dataset.memory_limit is not none %}
+        <tr>
+            <th>{% trans %}Memory limit{% endtrans %}</th>
+            <td colspan="2">{{ task.active_dataset.memory_limit|format_size }}</td>
+        </tr>
+{% endif %}
+{% set compilation_commands = task_type.get_compilation_commands(task.submission_format) %}
+{% if compilation_commands is not none %}
+{% set compilation_commands = compilation_commands|dictselect("in", contest.languages, by="key") %}
+<tr>
+    <th rowspan="{{ compilation_commands|length }}">{% trans %}Compilation commands{% endtrans %}</th>
+    {% for l, c in compilation_commands|dictsort(by="key") %}
+        {% if not loop.first %}
+</tr>
+<tr>
+        {% endif %}
+    <td>{{ (l|to_language).name }}</td>
+    <td class="compilation_command_cell">
+{% for cmd in c %}
+        <code class="compilation_command">{{ cmd|join(" ") }}</code>
+{% endfor %}
+    </td>
+    {% endfor %}
+</tr>
+{% endif %}
+
+{% if tokens_contest != TOKEN_MODE_DISABLED and tokens_tasks != TOKEN_MODE_DISABLED %}
+<tr>
+    <th>{% trans %}Tokens{% endtrans %}</th>
+    <td colspan="2" class="token_rules">
+    {% if tokens_contest == TOKEN_MODE_INFINITE and tokens_tasks == TOKEN_MODE_INFINITE %}
+        <p>
+        {% trans %}You have an infinite number of tokens.{% endtrans %}
+        </p>
+    {% elif tokens_contest == TOKEN_MODE_INFINITE %}
+        <p>
+        {{ task|extract_token_params|format_token_rules }}
+        </p>
+    {% elif tokens_tasks == TOKEN_MODE_INFINITE %}
+        <p>
+        {% trans type_pl=_("tokens"), contest_root=contest_url() %}You can find the rules for the {{ type_pl }} on the <a href="{{ contest_root }}">contest overview page</a>.{% endtrans %}
+        </p>
+    {% else %}
+        <p>
+        {{ task|extract_token_params|format_token_rules(t_type="task") }}
+        </p>
+
+        <p>
+        {% trans %}Remember that to see the detailed result of a submission you need to use both a contest-token and a task-token.{% endtrans %}
+        {%+ trans type_pl=_("contest-tokens"), contest_root=contest_url() %}You can find the rules for the {{ type_pl }} on the <a href="{{ contest_root }}">contest overview page</a>.{% endtrans %}
+        </p>
+    {% endif %}
+    </td>
+</tr>
+{% endif %}
+    </tbody>
+</table>

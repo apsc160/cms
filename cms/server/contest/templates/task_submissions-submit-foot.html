@@ -1,0 +1,207 @@
+{# Javascript for ace submission panel
+ # Requires: task, contest 
+ #}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.2/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.2/ext-language_tools.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.2/ext-modelist.js"></script>
+<script>
+
+    // ACE editors
+    ace.require("ace/ext/language_tools");
+{% for filename in task.submission_format %}
+    var editor{{ loop.index0 }} = ace.edit("editor{{ loop.index0 }}", {
+        theme: "ace/theme/crimson_editor",
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: false,
+        minLines: 10,
+        maxLines: 30,
+    });
+
+    // update submission text based on ACE content
+    var textarea{{ loop.index0 }} = $('input[id="ta_input{{ loop.index0 }}"]');
+    editor{{ loop.index0 }}.getSession().on("change", function () {
+        textarea{{ loop.index0 }}.val(editor{{ loop.index0 }}.getSession().getValue());
+    });
+    
+    // copy ACE content to textarea on form submit
+    textarea{{ loop.index0 }}.closest('form').submit(function() {
+      textarea{{ loop.index0 }}.val(editor{{ loop.index0 }}.getSession().getValue());
+    })
+{% endfor %}
+
+    // default language extensions
+    var DEFAULT_LANGUAGE_EXTENSIONS = {
+{% for lang in contest.languages %}
+        '{{ lang }}': '{{ (lang|to_language).source_extension }}',
+{% endfor %}
+    };
+
+    // default language content
+    var DEFAULT_LANGUAGE_CONTENT = {
+{% for filename in task.submission_format %}
+    {% if ".%l" in filename %}
+        {% for lang in contest.languages %}
+            {% for extension in (lang|to_language).source_extensions %}
+                {% set filename_key = filename|replace(".%l",extension) %}
+                {% if filename_key in task.attachments %}
+        '{{ lang }}': '{{ contest_url("tasks", task.name, "attachments", filename_key) }}',
+                    {% break %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    {% else %}
+        {% if filename in task.attachments %}
+        '{{ lang }}': '{{ contest_url("tasks", task.name, "attachments", filename) }}',
+        {% endif %}
+    {% endif %}
+{% endfor %}
+    };
+
+    // detect current language, update labels
+    var languageselect = $('select[name="language"]');
+    var language = null;
+    if (languageselect.length === 1) {
+        language = languageselect.find(":selected").text();
+        updateLanguage(language);
+        languageselect.on("change", function() {
+            // save current storage, update labels, load new storage
+            saveStorage();
+            language = languageselect.find(":selected").text();
+            updateLanguage(language);
+            loadStorage();
+        });
+    }
+
+    // restore data from sessionStorage
+    window.onload = function() {
+        // load language
+        var lang = localStorage.getItem("language");
+        if (lang !== null) {
+            language = lang;
+            updateLanguage(language);
+            if (languageselect !== null) {
+                languageselect.val(language);
+            }
+        }
+
+        // load file storage
+        loadStorage();
+    }
+
+    // save data to sessionStorage
+    window.onbeforeunload = function() {
+
+        // save language
+        if (language !== null) {
+            localStorage.setItem("language", language);
+        }
+
+        // save file storage
+        saveStorage();
+    }
+
+    // clear storage on reset
+    $('#submit_solution_form').on("reset", function() {
+        resetStorage();
+        // executes after the form has been reset
+        setTimeout(function() {
+            // update from template if exists
+            if (languageselect !== null) {
+                // restore previous language
+                languageselect.val(language);
+                updateLanguage(language);
+            }
+            loadStorage();
+        }, 1);
+        
+    });
+    
+    function updateLanguage(lang) {
+
+        // update file extensions
+        var ext = DEFAULT_LANGUAGE_EXTENSIONS[lang];
+        var modelist = ace.require("ace/ext/modelist");
+
+        var fn = "";
+{% for filename in task.submission_format %}
+        fn = "{{ filename }}".replace('.%l',ext);
+        $('#editor{{ loop.index0 }}_filename').val(fn);
+{% endfor %}
+
+        // update editor modes based on extension
+        var mode = "text";
+{% for filename in task.submission_format %}
+        fn = "{{ filename }}".replace('.%l',ext);
+        mode = modelist.getModeForPath(fn).mode;
+        editor{{ loop.index0 }}.session.setMode(mode);
+{% endfor %}
+    }
+
+    function resetStorage() {
+        var txt = "";
+        var ext = ".%l";
+        if (language !== null) {
+            ext = DEFAULT_LANGUAGE_EXTENSIONS[language];
+        }
+        var real_filename;
+{% for filename in task.submission_format %}
+        real_filename = "{{ filename }}".replace('.%l', ext);
+        localStorage.removeItem("{{ task.name }}/" + real_filename);
+{% endfor %}
+    }
+
+    function loadStorage() {
+        var txt = "";
+        var ext = ".%l";
+        if (language !== null) {
+            ext = DEFAULT_LANGUAGE_EXTENSIONS[language];
+        }
+        var real_filename;
+{% for filename in task.submission_format %}
+        real_filename = "{{ filename }}".replace('.%l', ext);
+        txt = localStorage.getItem("{{ task.name }}/" + real_filename);
+        if (txt !== null) {
+            editor{{ loop.index0 }}.getSession().setValue(txt);
+        } else {
+            // default or empty
+            if (language in DEFAULT_LANGUAGE_CONTENT) {
+                var default_content_url = DEFAULT_LANGUAGE_CONTENT[language];
+                $.get(default_content_url,
+                    function(data) {
+                        editor{{ loop.index0 }}.getSession().setValue(data);
+                    }, 'text');
+            } else {
+                // blank slate
+                editor{{ loop.index0 }}.getSession().setValue("");
+            }
+        }
+{% endfor %}
+    }
+
+    function saveStorage() {
+        var txt = "";
+        var ext = ".%l";
+        if (language !== null) {
+            ext = DEFAULT_LANGUAGE_EXTENSIONS[language];
+        }
+        var real_filename;
+{% for filename in task.submission_format %}
+        real_filename = "{{ filename }}".replace('.%l', ext);
+        txt = editor{{ loop.index0 }}.getSession().getValue();
+        localStorage.setItem("{{ task.name }}/" + real_filename, txt);
+{% endfor %}
+    }
+
+    function filter_languages(options, inputs) {
+        CMS.CWSUtils.filter_languages(options, inputs)
+        // detect change in language and update if necessary
+        var new_language = languageselect.find(":selected").text();
+        if (new_language !== language) {
+            language = new_language;
+            updateLanguage(language);
+        }
+
+    }
+
+</script>

@@ -1,0 +1,76 @@
+{# Renders table of previous submissions
+ # Requires: task, submissions, tokens_contest, tokens_tasks, actual_phase, tokens_info, format_datetime_smart
+ # Dependencies: task_submissions-previous.js
+ #}
+
+ {% set can_use_tokens = tokens_contest != TOKEN_MODE_DISABLED and tokens_task != TOKEN_MODE_DISABLED %}
+
+<h2 style="margin: 40px 0 10px">{% trans %}Previous submissions{% endtrans %}</h2>
+
+{% if tokens_contest != TOKEN_MODE_DISABLED and tokens_tasks != TOKEN_MODE_DISABLED and actual_phase == 0 %}
+<div style="padding-bottom:10px">
+    {% set can_play_token = actual_phase == 0 and (tokens_info[0] > 0 or tokens_info[0] == -1) %}
+    {% set need_to_wait = tokens_info[2] is not none %}
+    {% if tokens_task == TOKEN_MODE_DISABLED %}
+        {% trans %}Tokens are not allowed on this task.{% endtrans %}
+    {% elif can_play_token %}
+        {% if tokens_info[0] == -1 %}
+            {% trans %}Right now, you have infinite tokens available on this task.{% endtrans %}
+        {% elif tokens_info[0] == 1 %}
+            {% trans %}Right now, you have one token available on this task.{% endtrans %}
+        {% else %}
+            {% trans tokens=tokens_info[0] %}Right now, you have {{ tokens }} tokens available on this task.{% endtrans %}
+        {% endif %}
+        {% if need_to_wait %}
+            {% trans expiration_time=tokens_info[2]|format_datetime_smart %}
+                But you have to wait until {{ expiration_time }} to use them.
+            {% endtrans %}
+        {% endif %}
+        {% if tokens_info[1] is not none %}
+            {% trans gen_time=tokens_info[1]|format_datetime_smart %}
+                You will receive a new token at {{ gen_time }}.
+            {% endtrans %}
+        {% else %}
+            {% trans %}In the current situation, no more tokens will be generated.{% endtrans %}
+        {% endif %}
+    {% else %}
+        {% trans %}Right now, you do not have tokens available for this task.{% endtrans %}
+        {% if actual_phase == 0 and tokens_info[1] is not none %}
+            {% trans gen_time=tokens_info[1]|format_datetime_smart %}
+                You will receive a new token at {{ gen_time }}.
+            {% endtrans %}
+            {% if tokens_info[2] is not none and tokens_info[2] > tokens_info[1] %}
+                {% trans expiration_time=tokens_info[2]|format_datetime_smart %}
+                    But you will have to wait until {{ expiration_time }} to use it.
+                {% endtrans %}
+            {% endif %}
+        {% else %}
+            {% trans %}In the current situation, no more tokens will be generated.{% endtrans %}
+        {% endif %}
+    {% endif %}
+</div>
+{% endif %}
+
+{% set show_date = not submissions|map(attribute="timestamp")|all("today") %}
+
+{% set submission_table_submissions = submissions|rejectattr("official")|list %}
+{% if submission_table_submissions|length > 0 %}
+<h3>{% trans %}Unofficial submissions{% endtrans %}</h3>
+  {% include "submission_table.html" %}
+<h3>{% trans %}Official submissions{% endtrans %}</h3>
+{% endif %}
+
+{% set submission_table_submissions = submissions|selectattr("official")|list %}
+{% include "submission_table.html" %}
+
+<div class="modal fade hide wide" id="submission_detail">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&#xD7;</button>
+        <h3>{% trans %}Submission details{% endtrans %}</h3>
+    </div>
+    <div class="modal-body">
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">{% trans %}Close{% endtrans %}</a>
+    </div>
+</div>
