@@ -25,6 +25,7 @@ class User(Entity):
     It consists of the following properties:
     - f_name (unicode): the first name of the user
     - l_name (unicode): the last name of the user
+    - u_name (unicode): the username of the user
     - team (unicode): the id of the team the user belongs to
 
     """
@@ -35,6 +36,7 @@ class User(Entity):
         Entity.__init__(self)
         self.f_name = None
         self.l_name = None
+        self.u_name = None
         self.team = None
 
     @staticmethod
@@ -51,6 +53,8 @@ class User(Entity):
                 "Field 'f_name' isn't a string"
             assert isinstance(data['l_name'], str), \
                 "Field 'l_name' isn't a string"
+            assert isinstance(data['u_name'], str), \
+                "Field 'u_name' isn't a string"
             assert data['team'] is None or \
                 isinstance(data['team'], str), \
                 "Field 'team' isn't a string (or null)"
@@ -63,6 +67,7 @@ class User(Entity):
         self.validate(data)
         self.f_name = data['f_name']
         self.l_name = data['l_name']
+        self.u_name = data['u_name']
         self.team = data['team']
 
     def get(self):

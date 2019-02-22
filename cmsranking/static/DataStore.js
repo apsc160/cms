@@ -424,7 +424,7 @@ var DataStore = new function () {
         self.users[key] = data;
 
         console.info("Created user " + key);
-        console.log(data);
+        // console.log(data);
 
         self.user_count += 1;
 
@@ -438,8 +438,8 @@ var DataStore = new function () {
         self.users[key] = data;
 
         console.info("Updated user " + key);
-        console.log(old_data);
-        console.log(data);
+        // console.log(old_data);
+        // console.log(data);
 
         self.user_update.fire(key, old_data, data);
     };
@@ -450,7 +450,7 @@ var DataStore = new function () {
         delete self.users[key];
 
         console.info("Deleted user " + key);
-        console.log(old_data);
+        // console.log(old_data);
 
         self.user_count -= 1;
 
@@ -1063,9 +1063,12 @@ var DataStore = new function () {
         var a = data;
         for (var i = 0; i < user_list.length; i += 1) {
             var b = user_list[i];
-            if ((a["l_name"] < b["l_name"]) || ((a["l_name"] == b["l_name"]) &&
-               ((a["f_name"] < b["f_name"]) || ((a["f_name"] == b["f_name"]) &&
-               (key < b["key"]))))) {
+            if ((a["u_name"] < b["u_name"]) || ((a["u_name"] == b["u_name"]) &&
+               // ((a["l_name"] < b["l_name"]) || ((a["l_name"] == b["l_name"]) &&
+               // ((a["f_name"] < b["f_name"]) || ((a["f_name"] == b["f_name"]) &&
+               (key < b["key"]
+               // ))
+               ))) {
                 // We found the first element which is greater than a
                 user_list.splice(i, 0, a);
                 return;

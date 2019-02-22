@@ -94,7 +94,10 @@ var Scoreboard = new function () {
         });
 
         // Create callbacks for UserPanel
-        self.tbody_el.on("click", "td.f_name, td.l_name", function () {
+        // self.tbody_el.on("click", "td.f_name, td.l_name", function () {
+        //     UserDetail.show($(this).parent().data("user"));
+        // });
+        self.tbody_el.on("click", "td.u_name", function () {
             UserDetail.show($(this).parent().data("user"));
         });
 
@@ -153,9 +156,10 @@ var Scoreboard = new function () {
         var result = " \
 <col class=\"sel\"/> \
 <col class=\"rank\"/> \
-<col class=\"f_name\"/> <col/><col/><col/><col/><col/><col/><col/><col/><col/> \
-<col class=\"l_name\"/> <col/><col/><col/><col/><col/><col/><col/><col/><col/> \
+<col class=\"u_name\"/> \
 <col class=\"team\"/>";
+// <col class=\"f_name\"/> <col/><col/><col/><col/><col/><col/><col/><col/><col/> \
+// <col class=\"l_name\"/> <col/><col/><col/><col/><col/><col/><col/><col/><col/> \
 
         var contests = DataStore.contest_list;
         for (var i in contests) {
@@ -188,30 +192,31 @@ var Scoreboard = new function () {
 <tr> \
     <th class=\"sel\"></th> \
     <th class=\"rank\">Rank</th> \
-    <th colspan=\"10\" class=\"f_name\">First Name</th> \
-    <th colspan=\"10\" class=\"l_name\">Last Name</th> \
+    <th class=\"u_name\">Username</th> \
     <th class=\"team\">Team</th>";
+    // <th colspan=\"10\" class=\"f_name\">First Name</th> \
+    // <th colspan=\"10\" class=\"l_name\">Last Name</th> \
 
         var contests = DataStore.contest_list;
         for (var i in contests) {
             var contest = contests[i];
             var c_id = contest["key"];
 
-            var tasks = contest["tasks"];
-            for (var j in tasks) {
-                var task = tasks[j];
-                var t_id = task["key"];
+    //         var tasks = contest["tasks"];
+    //         for (var j in tasks) {
+    //             var task = tasks[j];
+    //             var t_id = task["key"];
 
-                result += " \
-    <th colspan=\"3\" class=\"score task\" data-task=\"" + t_id + "\" data-sort_key=\"t_" + t_id + "\"><abbr title=\"" + escapeHTML(task["name"]) + "\">" + escapeHTML(task["short_name"]) + "</abbr></th>";
-            }
+    //             result += " \
+    // <th colspan=\"3\" class=\"score task\" data-task=\"" + t_id + "\" data-sort_key=\"t_" + t_id + "\"><abbr title=\"" + escapeHTML(task["name"]) + "\">" + escapeHTML(task["short_name"]) + "</abbr></th>";
+    //         }
 
             result += " \
-    <th colspan=\"4\" class=\"score contest\" data-contest=\"" + c_id + "\" data-sort_key=\"c_" + c_id + "\"><abbr title=\"" + escapeHTML(contest["name"]) + "\">" + escapeHTML(contest["name"]) + "</abbr></th>";
+    <th class=\"score contest\" data-contest=\"" + c_id + "\" data-sort_key=\"c_" + c_id + "\"><abbr title=\"" + escapeHTML(contest["name"]) + "\">" + escapeHTML(contest["name"]) + "</abbr></th>";
         }
 
         result += " \
-    <th colspan=\"5\" class=\"score global\" data-sort_key=\"global\">Global</th> \
+    <th class=\"score global\" data-sort_key=\"global\">Global</th> \
 </tr>";
 
         return result;
@@ -235,8 +240,9 @@ var Scoreboard = new function () {
 <tr class=\"user" + (user["selected"] > 0 ? " selected color" + user["selected"] : "") + "\" data-user=\"" + user["key"] + "\"> \
     <td class=\"sel\"></td> \
     <td class=\"rank\">" + user["rank"] + "</td> \
-    <td colspan=\"10\" class=\"f_name\">" + escapeHTML(user["f_name"]) + "</td> \
-    <td colspan=\"10\" class=\"l_name\">" + escapeHTML(user["l_name"]) + "</td>";
+    <td class=\"u_name\">" + escapeHTML(user["u_name"]) + "</td>";
+    // <td colspan=\"10\" class=\"f_name\">" + escapeHTML(user["f_name"]) + "</td> \
+    // <td colspan=\"10\" class=\"l_name\">" + escapeHTML(user["l_name"]) + "</td> \
 
         if (user['team']) {
             result += " \
@@ -251,24 +257,24 @@ var Scoreboard = new function () {
             var contest = contests[i];
             var c_id = contest["key"];
 
-            var tasks = contest["tasks"];
-            for (var j in tasks) {
-                var task = tasks[j];
-                var t_id = task["key"];
+    //         var tasks = contest["tasks"];
+    //         for (var j in tasks) {
+    //             var task = tasks[j];
+    //             var t_id = task["key"];
 
-                var score_class = self.get_score_class(user["t_" + t_id], task["max_score"]);
-                result += " \
-    <td colspan=\"3\" class=\"score task " + score_class + "\" data-task=\"" + t_id + "\" data-sort_key=\"t_" + t_id + "\">" + round_to_str(user["t_" + t_id], task["score_precision"]) + "</td>";
-            }
+    //             var score_class = self.get_score_class(user["t_" + t_id], task["max_score"]);
+    //             result += " \
+    // <td colspan=\"3\" class=\"score task " + score_class + "\" data-task=\"" + t_id + "\" data-sort_key=\"t_" + t_id + "\">" + round_to_str(user["t_" + t_id], task["score_precision"]) + "</td>";
+    //         }
 
             var score_class = self.get_score_class(user["c_" + c_id], contest["max_score"]);
             result += " \
-    <td colspan=\"4\" class=\"score contest " + score_class + "\" data-contest=\"" + c_id + "\" data-sort_key=\"c_" + c_id + "\">" + round_to_str(user["c_" + c_id], contest["score_precision"]) + "</td>";
+    <td class=\"score contest " + score_class + "\" data-contest=\"" + c_id + "\" data-sort_key=\"c_" + c_id + "\">" + round_to_str(user["c_" + c_id], contest["score_precision"]) + "</td>";
         }
 
         var score_class = self.get_score_class(user["global"], DataStore.global_max_score);
         result += " \
-    <td colspan=\"5\" class=\"score global " + score_class + "\" data-sort_key=\"global\">" + round_to_str(user["global"], DataStore.global_score_precision) + "</td> \
+    <td class=\"score global " + score_class + "\" data-sort_key=\"global\">" + round_to_str(user["global"], DataStore.global_score_precision) + "</td> \
 </tr>";
 
         return result;
@@ -303,9 +309,12 @@ var Scoreboard = new function () {
         var sort_key = self.sort_key;
         if ((a[sort_key] > b[sort_key]) || ((a[sort_key] == b[sort_key]) &&
            ((a["global"] > b["global"]) || ((a["global"] == b["global"]) &&
-           ((a["l_name"] < b["l_name"]) || ((a["l_name"] == b["l_name"]) &&
-           ((a["f_name"] < b["f_name"]) || ((a["f_name"] == b["f_name"]) &&
-           (a["key"] <= b["key"]))))))))) {
+           ((a["u_name"] > b["u_name"]) || ((a["u_name"] == b["u_name"]) &&
+           //    ((a["l_name"] < b["l_name"]) || ((a["l_name"] == b["l_name"]) &&
+           //    ((a["f_name"] < b["f_name"]) || ((a["f_name"] == b["f_name"]) &&
+           (a["key"] <= b["key"])
+           // ))
+           )))))) {
             return -1;
         } else {
             return +1;
@@ -403,8 +412,9 @@ var Scoreboard = new function () {
         delete old_user["row"];
         delete old_user["index"];
 
-        $row.children("td.f_name").text(user["f_name"]);
-        $row.children("td.l_name").text(user["l_name"]);
+        // $row.children("td.f_name").text(user["f_name"]);
+        // $row.children("td.l_name").text(user["l_name"]);
+        $row.children("td.u_name").text(user["u_name"]);
 
         if (user["team"]) {
             $row.children(".team").html("<img src=\"" + Config.get_flag_url(user["team"]) + "\" title=\"" + DataStore.teams[user["team"]]["name"] + "\" />");

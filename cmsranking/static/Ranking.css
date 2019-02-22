@@ -42,6 +42,10 @@ abbr {
     width: 200px;
 }
 
+#LogoPanel>img {
+    width: 100%;
+}
+
 #UpperPanel {
     position: absolute;
     top: 0;
@@ -373,7 +377,7 @@ abbr {
 
 #Scoreboard {
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto;
     margin: 3em 0;
 }
 
@@ -432,7 +436,8 @@ abbr {
 }
 
 #Scoreboard_body tr td.f_name,
-#Scoreboard_body tr td.l_name {
+#Scoreboard_body tr td.l_name,
+#Scoreboard_body tr td.u_name {
     text-align: left;
     padding: 0 0.5em;
     cursor: pointer;
@@ -450,13 +455,15 @@ abbr {
 
 #Scoreboard_body tr:hover td.f_name,
 #Scoreboard_body tr:hover td.l_name,
+#Scoreboard_body tr:hover td.u_name,
 #Scoreboard_body tr:hover td.team {
     background-color: rgba(200,200,200,0.35);
     border-radius: 5px;
 }
 
 #Scoreboard_body tr.selected td.f_name,
-#Scoreboard_body tr.selected td.l_name {
+#Scoreboard_body tr.selected td.l_name,
+#Scoreboard_body tr.selected td.u_name {
     font-weight: bold;
 }
 
@@ -916,6 +923,7 @@ abbr {
 
 #UserDetail_f_name,
 #UserDetail_l_name,
+#UserDetail_u_name,
 #UserDetail_team,
 #UserDetail_flag {
     position: absolute;
@@ -930,6 +938,11 @@ abbr {
 
 #UserDetail_l_name {
     top: 1.5em;
+}
+
+#UserDetail_u_name {
+    top: 0em;
+    font-weight: bold;
 }
 
 #UserDetail_team {

@@ -37,8 +37,9 @@ var UserDetail = new function () {
             }
         });
 
-        self.f_name_label = $('#UserDetail_f_name');
-        self.l_name_label = $('#UserDetail_l_name');
+        // self.f_name_label = $('#UserDetail_f_name');
+        // self.l_name_label = $('#UserDetail_l_name');
+        self.u_name_label = $('#UserDetail_u_name');
         self.team_label = $('#UserDetail_team');
         self.flag_image = $('#UserDetail_flag');
         self.face_image = $('#UserDetail_face');
@@ -99,7 +100,7 @@ var UserDetail = new function () {
             window.history.pushState({}, "", "#" + user_id);
         }
         window.document.title =
-            "Ranking - " + self.user["f_name"] + " " + self.user["l_name"];
+            "Ranking - " + self.user["u_name"]; // self.user["f_name"] + " " + self.user["l_name"];
 
         HistoryStore.request_update(self.history_callback);
 
@@ -151,8 +152,9 @@ var UserDetail = new function () {
 
     self.do_show = function () {
         if (self.data_fetched == 2) {
-            self.f_name_label.text(self.user["f_name"]);
-            self.l_name_label.text(self.user["l_name"]);
+            // self.f_name_label.text(self.user["f_name"]);
+            // self.l_name_label.text(self.user["l_name"]);
+            self.u_name_label.text(self.user["u_name"]);
             self.face_image.attr("src", Config.get_face_url(self.user_id));
 
             if (self.user["team"]) {

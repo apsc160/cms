@@ -271,9 +271,12 @@ var Overview = new function () {
     // (where a < b means that a shoud go above b in the overview)
     self.compare_users = function (a, b) {
         if ((a["global"] > b["global"]) || ((a["global"] == b["global"]) &&
-           ((a["l_name"] < b["l_name"]) || ((a["l_name"] == b["l_name"]) &&
-           ((a["f_name"] < b["f_name"]) || ((a["f_name"] == b["f_name"]) &&
-           (a["key"] <= b["key"]))))))) {
+           // ((a["l_name"] < b["l_name"]) || ((a["l_name"] == b["l_name"]) &&
+           // ((a["f_name"] < b["f_name"]) || ((a["f_name"] == b["f_name"]) &&
+           ((a["u_name"] < b["u_name"]) || ((a["u_name"] == b["u_name"]) &&
+           (a["key"] <= b["key"])))
+           // ))
+           )) {
             return -1;
         } else {
             return +1;
@@ -388,7 +391,7 @@ var Overview = new function () {
     };
 
     self.transform_key = function(user) {
-      var s = user['f_name'] + ' ' + user['l_name'];
+      var s = user['u_name']; // user['f_name'] + ' ' + user['l_name'];
       var sl = s.split(' ');
       var out = '';
       for (var i = 0; i < sl.length; i++) {
