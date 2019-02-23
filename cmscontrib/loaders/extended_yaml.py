@@ -767,6 +767,9 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
 
         args["testcases"] = []
 
+        # attach inputs, by default if OutputOnly type
+        attach_inputs = conf.get("attach_inputs", args["task_type"] == "OutputOnly")
+
         if "testcases" in conf or "test_cases" in conf:
             # explicit
             tconf = {}
@@ -802,14 +805,13 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
                 args["testcases"] += [
                     Testcase(codename, public, input_digest, output_digest)]
 
-                # add inputs as attachments
                 if args["task_type"] == "OutputOnly":
-                    # only attach file if there actually is one
-                    if not input_is_empty:
-                        task.attachments.set(
-                            Attachment("input_%s.txt" % codename, input_digest))
-
                     output_files.append("output_%s.txt" % codename)
+
+                # only attach file if there actually is one
+                if attach_inputs and not input_is_empty:
+                    task.attachments.set(
+                        Attachment("input_%s.txt" % codename, input_digest))
 
             # If output_only is set, then overwrite submission format
             if conf.get('output_only', False):
@@ -826,7 +828,7 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
                     "Output %d for task %s" % (i, task.name))
                 args["testcases"] += [
                     Testcase("%03d" % i, False, input_digest, output_digest)]
-                if args["task_type"] == "OutputOnly":
+                if attach_inputs:
                     task.attachments.set(
                         Attachment("input_%03d.txt" % i, input_digest))
         
