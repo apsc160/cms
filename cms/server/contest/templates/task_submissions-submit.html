@@ -56,11 +56,15 @@
                 <div class="control-group">
                     <!--<label class="control-label" id="input{{ loop.index0 }}_label"for="input{{ loop.index0 }}"><strong>Upload file:</strong></label>
                         -->
-                    <div class="controls">
+                    <div class="controls" style="margin-top: 2pt">
+                        <div class="file-selector btn" onclick="$('#input{{ loop.index0 }}').click()">{% trans %}Upload as file:{% endtrans %}</div>
+                        <span class="file-selector" id="input{{ loop.index0 }}_upload_filename"><em>{% trans %}(optional){% endtrans %}</em></span>
                         <input type="file" class="input-xlarge"
                                id="input{{ loop.index0 }}" name="{{ filename }}"
+                               style="display:none"
                                onchange="filter_languages($(this).parents('form').find('select[name=language] option'),
-                                                                       $(this).parents('form').find('input[type=file]'))"/>
+                                                                       $(this).parents('form').find('input[type=file]')); 
+                                                                       $('#input{{ loop.index0 }}_upload_filename').html($(this).val().split('\\').pop())"/>
                     </div>
                 </div>
 {% endfor %}
