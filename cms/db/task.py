@@ -37,7 +37,8 @@ from sqlalchemy.types import Boolean, Integer, Float, String, Unicode, \
     Interval, Enum, BigInteger
 
 from cms import TOKEN_MODE_DISABLED, TOKEN_MODE_FINITE, TOKEN_MODE_INFINITE, \
-    FEEDBACK_LEVEL_FULL, FEEDBACK_LEVEL_RESTRICTED, get_valid_statement_types
+    FEEDBACK_LEVEL_FULL, FEEDBACK_LEVEL_RESTRICTED, get_valid_statement_types, \
+    STATEMENT_TYPE_PDF
 from cmscommon.constants import \
     SCORE_MODE_MAX, SCORE_MODE_MAX_SUBTASK, SCORE_MODE_MAX_TOKENED_LAST
 from . import Codename, Filename, FilenameSchemaArray, Digest, Base, Contest
@@ -318,7 +319,8 @@ class Statement(Base):
     # how to render the statement.
     statement_type = Column(
         Enum(*get_valid_statement_types(), name="statement_type"),
-        nullable=False)
+        nullable=False,
+        default=STATEMENT_TYPE_PDF)
 
     # Digest of the file.
     digest = Column(
@@ -327,10 +329,10 @@ class Statement(Base):
 
     @property
     def statement_key(self):
-        return Statement.encode_key(self.language, self.statement_type)
+        return Statement.create_key(self.language, self.statement_type)
     
     @staticmethod
-    def encode_key(language, statement_type):
+    def create_key(language, statement_type=STATEMENT_TYPE_PDF):
         return "{language:'" + language + "', statement_type:'" + statement_type + "'}"
         
 

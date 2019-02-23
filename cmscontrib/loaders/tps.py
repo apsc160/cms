@@ -137,13 +137,14 @@ class TpsTaskLoader(TaskLoader):
                     logger.info('Statements found')
                 for statement in statements:
                     language = statement[:-4]
+                    key = Statement.create_key(language)
                     if language == "en_US":
-                        args["primary_statements"] = ["en_US"]
+                        args["primary_statements"] = [language]
                     digest = self.file_cacher.put_file_from_path(
                         os.path.join(statements_dir, statement),
                         "Statement for task %s (lang: %s)" %
                         (name, language))
-                    args['statements'][language] = Statement(language, digest)
+                    args['statements'][key] = Statement(language, digest=digest)
 
         # Attachments
         args["attachments"] = dict()

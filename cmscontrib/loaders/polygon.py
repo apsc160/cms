@@ -120,7 +120,8 @@ class PolygonTaskLoader(TaskLoader):
                         path,
                         "Statement for task %s (lang: %s)" % (name,
                                                               language))
-                    args["statements"][lang] = Statement(lang, digest)
+                    key = Statement.create_key(lang)
+                    args["statements"][key] = Statement(lang, digest=digest)
                     args["primary_statements"].append(lang)
 
         args["submission_format"] = ["%s.%%l" % name]

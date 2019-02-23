@@ -134,16 +134,15 @@ class TaskHandler(BaseHandler):
 
             # Parsing of primary statements checkboxes. Their name is
             # primary_statement_XX, where XX is the language code.
-            primary_statements = {}
-            for statement in task.statements:
-                self.get_bool(primary_statements,
-                              "primary_statement_%s" % statement[0])
+            primary_statements_checkbox = {}
+            primary_statements = []
+            for key,statement in task.statements.items():
+                elem = "primary_statement_%s" % statement.language
+                self.get_bool(primary_statements_checkbox, elem)
+                if primary_statements_checkbox[elem]:
+                    primary_statements.append(statement.language)
 
-            attrs["primary_statements"] = list(sorted([
-                k.replace("primary_statement_", "", 1)
-                for k in primary_statements
-                if primary_statements[k]
-            ]))
+            attrs["primary_statements"] = primary_statements
 
             self.get_submission_format(attrs)
             self.get_string(attrs, "feedback_level")

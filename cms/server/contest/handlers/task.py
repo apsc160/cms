@@ -33,6 +33,7 @@ import logging
 import tornado.web
 
 from cms import STATEMENT_TYPE_HTML, STATEMENT_TYPE_MD, STATEMENT_TYPE_PDF
+from cms.db import Statement
 from cms.server import multi_contest
 from cmscommon.mimetypes import get_type_for_file_name
 from .contest import ContestHandler, FileHandler
@@ -102,7 +103,7 @@ class TaskStatementViewHandler(FileHandler):
         if task is None:
             raise tornado.web.HTTPError(404)
 
-        key = Statement.encode_key(lang_code, statement_type)
+        key = Statement.create_key(lang_code, statement_type)
         if key not in task.statements:
             raise tornado.web.HTTPError(404)
 
