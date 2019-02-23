@@ -35,7 +35,6 @@ from .stats import execution_stats
 
 logger = logging.getLogger(__name__)
 
-
 # Dummy function to mark translatable strings.
 def N_(message):
     return message
@@ -173,6 +172,10 @@ def evaluation_step_before_run(sandbox, command,
         dirs_map = {}
     if writable_files is None:
         writable_files = []
+    if stdin_redirect is None:
+        # create empty input file
+        stdin_redirect = "stdin.txt"
+        sandbox.create_file_from_string(stdin_redirect, b"")
     if stdout_redirect is None:
         stdout_redirect = "stdout.txt"
 
