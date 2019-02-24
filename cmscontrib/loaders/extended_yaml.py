@@ -129,8 +129,13 @@ def make_utc_datetime(t):
     """Consider the case of time specified in string
     """
     if isinstance(t, str):
-        # convert to delta
-        return datetime.strptime(t, "%Y-%m-%d %H:%M:%S")
+        # Parse and validate a datetime (in pseudo-ISO8601).
+        if '.' not in t:
+            t += ".0"
+        try:
+            return datetime.strptime(t, "%Y-%m-%d %H:%M:%S.%f")
+        except:
+            raise ValueError("Can't cast %s to datetime." % t)
     else:
         return make_datetime(t)
 
@@ -147,6 +152,7 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
 
     short_name = 'extended_yaml'
     description = 'Extended YAML-based format'
+    task_path_map = dict()
 
     @staticmethod
     def detect(path):
@@ -157,7 +163,13 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
             os.path.exists(os.path.join(os.path.dirname(path), "contest.yaml"))
 
     def get_task_loader(self, taskname):
-        return ExtendedYamlLoader(os.path.join(self.path, taskname), self.file_cacher)
+
+        # search for task path
+        taskpath = self.task_path_map[taskname]
+        if not taskpath:
+            taskpath = os.path.join(self.path, taskname)
+
+        return ExtendedYamlLoader(taskpath, self.file_cacher)
 
     def get_contest(self):
         """See docstring in class ContestLoader."""
@@ -253,8 +265,27 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
         load(conf, args, ["analysis_stop", "analysis_mode_end_time_in_utc"], conv=make_utc_datetime)
 
 
-        tasks = load(conf, None, ["tasks", "problemi"])
-        participations = load(conf, None, ["users", "participations", "utenti"])
+        taskpaths = load(conf, None, ["tasks", "problemi"])
+        
+        # read true name of tasks
+        tasks = []
+        self.task_path_map = {}
+        for taskpath in taskpaths:
+            name = taskpath
+            try:
+                conf = load_yaml_from_path(os.path.join(self.path, taskpath, "task.yaml"))
+                name = conf.get("name", taskpath)
+            except:
+                try:
+                    conf = load_yaml_from_path(os.path.join(self.path, taskpath + ".yaml"))
+                    name = conf.get("name", taskpath)
+                except:
+                    pass
+
+            tasks.append(name)
+            self.task_path_map[name] = os.path.join(self.path, taskpath)
+
+        participations = load(conf, None, ["users", "participations"])
         if participations:
             for p in participations:
                 p["password"] = build_password(p["password"])
@@ -354,7 +385,9 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
 
     def get_task(self, get_statement=True):
         """See docstring in class TaskLoader."""
-        name = os.path.split(self.path)[1]
+
+        splitpath = os.path.split(self.path)
+        name = splitpath[-1]
 
         if (not os.path.exists(os.path.join(self.path, "task.yaml"))) and \
            (not os.path.exists(os.path.join(self.path, "..", name + ".yaml"))):
@@ -388,13 +421,12 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
         args = {}
 
         load(conf, args, ["name", "nome_breve"])
-        load(conf, args, ["title", "nome"])
-
         if name != args["name"]:
             logger.info("The task name (%s) and the directory name (%s) are "
                         "different. The former will be used.", args["name"],
                         name)
 
+        load(conf, args, ["title", "nome"])
         if args["name"] == args["title"]:
             logger.warning("Short name equals long name (title). "
                            "Please check.")
@@ -402,6 +434,8 @@ class ExtendedYamlLoader(ContestLoader, TaskLoader, UserLoader, TeamLoader):
         name = args["name"]
 
         logger.info("Loading parameters for task %s.", name)
+        category = conf.get('category', "")
+        args['category'] = category
 
         load(conf, args, ["num","position"])
 
