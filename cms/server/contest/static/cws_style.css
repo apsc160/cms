@@ -415,6 +415,24 @@ td.token_rules p:last-child {
     clear: both;
 }
 
+/*** Task statement */
+
+.task_statement {
+    margin-top: 10px;
+}
+
+.task_statement > h1 {
+    margin: 10px 0 15px;
+}
+
+.task_statement > h2 {
+    margin: 15px 0 15px;
+}
+
+.task_statement > h3 {
+    margin: 12px 0 12px;
+}
+
 /*** Task score */
 
 .task_score_container {

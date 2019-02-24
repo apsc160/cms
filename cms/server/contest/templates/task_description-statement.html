@@ -3,8 +3,6 @@
  # Dependencies: task_description-statement-head.html, task_description-statement-foot.html
  #}
 
-<h2>{% trans %}Statement{% endtrans %}</h2>
-
 {% if task.statements|length == 0 %}
 <div class="row statement no_statements">
     <div class="span9">
@@ -13,7 +11,7 @@
 </div>
 {% else %}
 <div>
-    <select id="statement-language-selection">
+    <select id="statement-language-selection" {% if  main_languages|length + other_languages|length == 1 %}style="display: none;" {% endif %}>
         {% for language in main_languages %}
             {% set language_name = language|format_locale %}
             <option value="{{ language }}">{{ language_name }}</option>
@@ -32,5 +30,5 @@
     <a style="float: right;" id="download-as-pdf" href="#" class="btn btn-success">Download as PDF</a>
 </div>
 
-<div id="statement-view"></div>
+<div id="statement-view" class="task_statement"></div>
 {% endif %}
