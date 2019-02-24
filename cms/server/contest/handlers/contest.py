@@ -169,6 +169,7 @@ class ContestHandler(BaseHandler):
             ret["contest_url"] = self.contest_url
 
         ret["phase"] = self.contest.phase(self.timestamp)
+        ret["timestamp"] = self.timestamp
 
         ret["printing_enabled"] = (config.printer is not None)
         ret["questions_enabled"] = self.contest.allow_questions

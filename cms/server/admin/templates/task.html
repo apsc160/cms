@@ -70,6 +70,14 @@ $("select[name=task_type_{{ dataset.id }}]").change(function() {
       </tr>
       <tr>
         <td>
+          <span class="info" title="Release time of task in the UTC timezone.
+                                    Example: '2015-12-31 15:00:00'."></span>
+          Release time (in UTC)
+        </td>
+        <td><input type="text" name="release_time" value="{{ task.release_time }}"></td>
+      </tr>
+      <tr>
+        <td>
           <span class="info" title="The index of the task within the contest, if the task is associated with a contest."></span>
           Position
         </td>

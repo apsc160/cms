@@ -183,7 +183,7 @@ $(document).ready(function () {
                                 Tasks
                             </li>
         {% set iter = namespace(last_category="") %}   
-        {% for t_iter in contest.tasks %}
+        {% for t_iter in contest.tasks if timestamp >= t_iter.release_time %}
             {% if t_iter.category != iter.last_category %}
                 {% set iter.last_category = t_iter.category %}
                             <li class="nav-header">

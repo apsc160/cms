@@ -75,7 +75,11 @@
 
     <div tab="problem" class="task_description tabcontent">       
         {% include "task_description-statement.html" %}
-        {% include "task_description-attachments.html" %}
+        {% if task.attachments|length > 0 %}
+            <hr/>
+            {% include "task_description-attachments.html" %}
+        {% endif %}
+        <hr/>
         {% include "task_submissions-submit.html" %}
     </div>
 

@@ -26,7 +26,7 @@
 """
 
 import copy
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import relationship
@@ -34,7 +34,7 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.schema import Column, ForeignKey, CheckConstraint, \
     UniqueConstraint, ForeignKeyConstraint
 from sqlalchemy.types import Boolean, Integer, Float, String, Unicode, \
-    Interval, Enum, BigInteger
+    Interval, Enum, BigInteger, DateTime
 
 from cms import TOKEN_MODE_DISABLED, TOKEN_MODE_FINITE, TOKEN_MODE_INFINITE, \
     FEEDBACK_LEVEL_FULL, FEEDBACK_LEVEL_RESTRICTED, get_valid_statement_types, \
@@ -103,6 +103,12 @@ class Task(Base):
         Unicode, 
         nullable=False,
         default = "")
+
+    # Release time of problem
+    release_time = Column(
+        DateTime,
+        nullable=False,
+        default=datetime(2000, 1, 1))
 
     # The names of the files that the contestant needs to submit (with
     # language-specific extensions replaced by "%l").

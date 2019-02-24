@@ -214,7 +214,7 @@
     </thead>
     <tbody>
 {% set extensions = "[%s]"|format(contest.languages|map("to_language")|map(attribute="source_extension")|unique|join("|")) %}
-{% for t_iter in contest.tasks %}
+{% for t_iter in contest.tasks if timestamp >= t_iter.release_time %}
     {% set user_score = participation_scores[t_iter.name] %}
     {% set score_type = get_score_type(dataset=t_iter.active_dataset) %}
         <tr>
