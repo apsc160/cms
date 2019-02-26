@@ -5,13 +5,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.2/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.2/ext-language_tools.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.2/ext-modelist.js"></script>
+<script src=""></script>
 <script>
 
     // ACE editors
     ace.require("ace/ext/language_tools");
 {% for filename in task.submission_format %}
     var editor{{ loop.index0 }} = ace.edit("editor{{ loop.index0 }}", {
-        theme: "ace/theme/crimson_editor",
+        theme: "ace/theme/dreamweaver",
         enableBasicAutocompletion: true,
         enableLiveAutocompletion: false,
         minLines: 10,
