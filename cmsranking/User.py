@@ -23,8 +23,8 @@ class User(Entity):
     """The entity representing a user.
 
     It consists of the following properties:
-    - f_name (unicode): the first name of the user
-    - l_name (unicode): the last name of the user
+    # - f_name (unicode): the first name of the user
+    # - l_name (unicode): the last name of the user
     - u_name (unicode): the username of the user
     - team (unicode): the id of the team the user belongs to
 
@@ -34,8 +34,8 @@ class User(Entity):
 
         """
         Entity.__init__(self)
-        self.f_name = None
-        self.l_name = None
+        # self.f_name = None
+        # self.l_name = None
         self.u_name = None
         self.team = None
 
@@ -49,10 +49,10 @@ class User(Entity):
         try:
             assert isinstance(data, dict), \
                 "Not a dictionary"
-            assert isinstance(data['f_name'], str), \
-                "Field 'f_name' isn't a string"
-            assert isinstance(data['l_name'], str), \
-                "Field 'l_name' isn't a string"
+            # assert isinstance(data['f_name'], str), \
+            #     "Field 'f_name' isn't a string"
+            # assert isinstance(data['l_name'], str), \
+            #     "Field 'l_name' isn't a string"
             assert isinstance(data['u_name'], str), \
                 "Field 'u_name' isn't a string"
             assert data['team'] is None or \
@@ -65,8 +65,8 @@ class User(Entity):
 
     def set(self, data):
         self.validate(data)
-        self.f_name = data['f_name']
-        self.l_name = data['l_name']
+        # self.f_name = data['f_name']
+        # self.l_name = data['l_name']
         self.u_name = data['u_name']
         self.team = data['team']
 
