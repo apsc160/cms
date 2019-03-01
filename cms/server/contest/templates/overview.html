@@ -218,7 +218,7 @@
     {% set user_score = participation_scores[t_iter.name] %}
     {% set score_type = get_score_type(dataset=t_iter.active_dataset) %}
         <tr>
-            <th>{{ t_iter.name }}</th>
+            <th><a href="{{ contest_url("tasks", t_iter.name, "full") }}">{{ t_iter.name }}</a></th>
             <td>{{ t_iter.category }}</td>
             <td>{{ t_iter.title }}</td>
             <td>
