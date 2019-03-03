@@ -92,6 +92,7 @@ def safe_put_data(ranking, resource, data, operation):
     except requests.exceptions.RequestException as error:
         msg = "%s while %s: %s." % (type(error).__name__, operation, error)
         logger.warning(msg)
+        logger.warning("Ranking data: " + str(json.dumps(data)))
         raise CannotSendError(msg)
     if 400 <= res.status_code < 600:
         msg = "Status %s while %s." % (res.status_code, operation)
