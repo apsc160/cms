@@ -124,6 +124,13 @@ class Score:
             scores_by_subtask = zip_longest(*scores_by_submission,
                                             fillvalue=0.0)
             score = float(sum(max(s) for s in scores_by_subtask))
+            mscore = max((submission.score
+                         for submission in self._submissions.values()),
+                        default=0.0)
+
+            logger.warn("Score: " + str(score))
+            logger.warn("Max score: " + str(mscore))
+
         elif self._score_mode == SCORE_MODE_MAX_TOKENED_LAST:
             score = max(self._released.query(),
                         self._last.score if self._last is not None else 0.0)
