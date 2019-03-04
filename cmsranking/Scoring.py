@@ -119,17 +119,12 @@ class Score:
                          for submission in self._submissions.values()),
                         default=0.0)
         elif self._score_mode == SCORE_MODE_MAX_SUBTASK:
-            scores_by_submission = (map(float, s.extra or [])
+            # get score parameters from submission.extra if exists, otherwise use score
+            scores_by_submission = (map(float, s.extra or [s.score])
                                     for s in self._submissions.values())
             scores_by_subtask = zip_longest(*scores_by_submission,
                                             fillvalue=0.0)
             score = float(sum(max(s) for s in scores_by_subtask))
-            mscore = max((submission.score
-                         for submission in self._submissions.values()),
-                        default=0.0)
-
-            logger.warn("Score: " + str(score))
-            logger.warn("Max score: " + str(mscore))
 
         elif self._score_mode == SCORE_MODE_MAX_TOKENED_LAST:
             score = max(self._released.query(),
