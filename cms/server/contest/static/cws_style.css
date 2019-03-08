@@ -273,6 +273,33 @@ div.login_box {
     text-align: center;
 }
 
+.task_description img {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.task_description ol, ul {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.task_description p {
+    margin-bottom: 1em;
+}
+
+.task_description table {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.task_description table td {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
 @media (max-width: 767px) {
     .task_description .statement.many_statements .main_statements {
         margin-bottom: 15px;
