@@ -278,6 +278,11 @@ div.login_box {
     margin-bottom: 1em;
 }
 
+.task_description ul ul, ul ol, ol ol, ol ul {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
 .task_description ol, ul {
     margin-top: 1em;
     margin-bottom: 1em;
