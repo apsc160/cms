@@ -214,7 +214,7 @@ CMS.CWSUtils.prototype.format_timedelta = function(timedelta) {
     timedelta %= 60;
     var seconds = Math.floor(timedelta);
 
-    if (days > 1) {
+    if (days >= 1) {
         return days + ":" + this.two_digits(hours) + ":"
             + this.two_digits(minutes) + ":"
             + this.two_digits(seconds);
