@@ -62,8 +62,8 @@
  }
 
  code {
-     font-size: 10pt;
      margin: .5em 0;
+     color: darkblue;
  }
  
  .token.comment,
